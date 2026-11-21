@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gaspard</title>
+<meta name="theme-color" content="#f6f7f9">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gaspard">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<style>
+:root{
+  --fond:#f6f7f9; --carte:#ffffff; --texte:#1b1f24; --doux:#5f6b7a; --ligne:#e3e7ec;
+  --vert:#1f8a4c; --vert-f:#e5f4eb; --rouge:#c0362c; --rouge-f:#fbe9e7; --orange:#b86e00; --orange-f:#fff1d9;
+  --bleu:#2457d6; --bleu-f:#e8eefc;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --fond:#111418; --carte:#1a1f26; --texte:#eef1f5; --doux:#9aa6b5; --ligne:#2a313b;
+    --vert:#4cc183; --vert-f:#13301f; --rouge:#ff7b6f; --rouge-f:#3a1b18; --orange:#ffb44d; --orange-f:#3a2a10;
+    --bleu:#7da2ff; --bleu-f:#1b2740;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--fond);color:var(--texte);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:17px;line-height:1.4}
+body{padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom)) 16px}
+main{max-width:480px;margin:0 auto}
+h1{font-size:20px;margin:4px 0 14px;font-weight:650}
+h2{font-size:15px;margin:0 0 10px;color:var(--doux);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.carte{background:var(--carte);border:1px solid var(--ligne);border-radius:16px;padding:16px;margin-bottom:14px}
+.cache{display:none !important}
+.gros{display:flex;gap:12px}
+.gros > div{flex:1;text-align:center}
+.chiffre{font-size:44px;font-weight:700;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums}
+.leg{font-size:14px;color:var(--doux);margin-top:2px}
+.statut{display:inline-block;margin-top:14px;padding:8px 14px;border-radius:999px;font-weight:650;font-size:16px}
+.s-ok{background:var(--vert-f);color:var(--vert)}
+.s-ko{background:var(--rouge-f);color:var(--rouge)}
+.s-hp{background:var(--orange-f);color:var(--orange)}
+.centre{text-align:center}
+.pc{margin-top:12px;font-size:15px;color:var(--doux)}
+.pc b{color:var(--texte)}
+.point{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--doux)}
+.point.on{background:var(--vert)}
+button,input,select{font:inherit;color:inherit}
+button{min-height:48px;min-width:44px;border:1px solid var(--ligne);background:var(--carte);border-radius:12px;padding:0 14px;font-weight:600;cursor:pointer}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.5}
+.rang{display:flex;gap:10px;margin-top:10px}
+.rang > button{flex:1}
+.bloquer{background:var(--rouge);border-color:var(--rouge);color:#fff}
+.debloquer{background:var(--vert);border-color:var(--vert);color:#fff}
+@media (prefers-color-scheme: dark){ .bloquer,.debloquer{color:#10151a} }
+.bonus{background:var(--bleu-f);border-color:transparent;color:var(--bleu);font-size:18px}
+input[type=text],input[type=password],input[type=time],input[type=url]{width:100%;min-height:48px;border:1px solid var(--ligne);border-radius:12px;padding:0 12px;background:var(--fond)}
+label{display:block;font-size:14px;color:var(--doux);margin:12px 0 4px}
+.deux{display:flex;gap:10px}
+.deux > div{flex:1}
+details summary{min-height:44px;display:flex;align-items:center;font-weight:650;cursor:pointer;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
+.barre{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:14px}
+.barre .j{width:52px;color:var(--doux)}
+.barre .piste{flex:1;height:16px;background:var(--fond);border-radius:8px;overflow:hidden;position:relative}
+.barre .rempli{height:100%;background:var(--bleu);border-radius:8px}
+.barre .rempli.plein{background:var(--orange)}
+.barre .v{width:62px;text-align:right;font-variant-numeric:tabular-nums}
+.journal{list-style:none;margin:0;padding:0;font-size:15px}
+.journal li{padding:8px 0;border-top:1px solid var(--ligne)}
+.journal li:first-child{border-top:0}
+.petit{font-size:13px;color:var(--doux)}
+.note{text-align:center;margin:6px 0 14px}
+.pied{text-align:center;margin-top:22px}
+.pied a{color:var(--doux);font-size:14px;text-decoration:underline;display:inline-block;padding:12px}
+#msg{position:fixed;left:16px;right:16px;bottom:max(16px,env(safe-area-inset-bottom));max-width:448px;margin:0 auto;padding:12px 16px;border-radius:12px;background:var(--texte);color:var(--fond);font-weight:600;text-align:center;z-index:10}
+.qui{display:flex;gap:10px;margin-top:6px}
+.qui button{flex:1}
+.qui button.choisi{background:var(--bleu);color:#fff;border-color:var(--bleu)}
+</style>
+</head>
+<body>
+<main>
+
+<!-- Premier lancement -->
+<section id="accueil" class="cache">
+  <h1>Contrôle de Gaspard</h1>
+  <div class="carte">
+    <label for="f-url">Adresse de la base</label>
+    <input id="f-url" type="url" inputmode="url" autocapitalize="off" autocorrect="off" placeholder="https://...turso.io">
+    <label for="f-cle">Clé d'accès</label>
+    <input id="f-cle" type="password" autocapitalize="off" autocorrect="off" placeholder="Clé">
+    <label>Qui es-tu ?</label>
+    <div class="qui">
+      <button type="button" id="q-ben" data-qui="Benoît">Benoît</button>
+      <button type="button" id="q-emi" data-qui="Émilie">Émilie</button>
+    </div>
+    <div class="rang"><button type="button" id="f-ok" class="bonus">Enregistrer et ouvrir</button></div>
+  </div>
+</section>
+
+<!-- Écran principal -->
+<section id="principal" class="cache">
+  <h1>Gaspard</h1>
+
+  <div class="carte centre">
+    <div class="gros">
+      <div><div class="chiffre" id="utilise">...</div><div class="leg">utilisé aujourd'hui</div></div>
+      <div><div class="chiffre" id="reste">...</div><div class="leg">reste</div></div>
+    </div>
+    <div id="statut" class="statut s-hp">Chargement</div>
+    <div class="pc"><span id="point" class="point"></span><span id="pc">...</span></div>
+  </div>
+
+  <div class="carte">
+    <h2>Actions</h2>
+    <div class="rang">
+      <button type="button" id="b-bloquer" class="bloquer">Bloquer maintenant</button>
+      <button type="button" id="b-debloquer" class="debloquer">Débloquer</button>
+    </div>
+    <div class="rang">
+      <button type="button" class="bonus" data-bonus="10">+10 min</button>
+      <button type="button" class="bonus" data-bonus="20">+20 min</button>
+    </div>
+    <div class="petit" style="margin-top:12px">
+      <div id="bonus-jour">Bonus aujourd'hui : ...</div>
+      <div id="bonus-semaine">Jours de bonus cette semaine : ...</div>
+    </div>
+    <div class="petit note" style="margin-top:12px;margin-bottom:0">Effet sur le PC sous 1 minute</div>
+  </div>
+
+  <div class="carte">
+    <details id="reglages">
+      <summary>Réglages</summary>
+      <label for="r-qs">Quota du lundi au vendredi (minutes ou h:mm)</label>
+      <input id="r-qs" type="text" inputmode="text" autocapitalize="off">
+      <label for="r-qw">Quota du samedi et dimanche (minutes ou h:mm)</label>
+      <input id="r-qw" type="text" inputmode="text" autocapitalize="off">
+      <label for="r-bm">Bonus maximum par jour (minutes)</label>
+      <input id="r-bm" type="text" inputmode="numeric" autocapitalize="off">
+      <label for="r-bj">Jours de bonus maximum par semaine (lundi au dimanche)</label>
+      <input id="r-bj" type="text" inputmode="numeric" autocapitalize="off">
+      <div class="rang"><button type="button" id="b-regl" class="bonus">Enregistrer</button></div>
+    </details>
+  </div>
+
+  <div class="carte">
+    <h2>7 derniers jours</h2>
+    <div id="histo"></div>
+  </div>
+
+  <div class="carte">
+    <h2>Dernières actions</h2>
+    <ul id="journal" class="journal"></ul>
+  </div>
+
+  <div class="pied"><a href="#" id="changer">Changer de compte / clé</a></div>
+</section>
+
+<div id="msg" class="cache" role="status"></div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  var CLE_STOCK = "gaspard-telecommande";
+  var cfg = null;          // {u, k, who}
+  var donnees = null;      // dernier état lu
+  var enCours = false;
+  var minuteur = null;
+
+  function $(id){ return document.getElementById(id); }
+
+  // ---------- stockage (try/catch : Safari privé, etc.)
+  function lire(){
+    try { var s = localStorage.getItem(CLE_STOCK); return s ? JSON.parse(s) : null; } catch(e){ return null; }
+  }
+  function ecrire(c){
+    try { localStorage.setItem(CLE_STOCK, JSON.stringify(c)); return true; } catch(e){ return false; }
+  }
+  function effacer(){
+    try { localStorage.removeItem(CLE_STOCK); } catch(e){}
+  }
+
+  // ---------- fragment #u=...&k=...
+  function lireFragment(){
+    var h = location.hash ? location.hash.replace(/^#/, "") : "";
+    if (!h) return null;
+    var out = {}, parts = h.split("&");
+    for (var i = 0; i < parts.length; i++){
+      var kv = parts[i].split("=");
+      if (kv.length >= 2){
+        try { out[kv[0]] = decodeURIComponent(kv.slice(1).join("=")); } catch(e){}
+      }
+    }
+    if (!out.u && !out.k) return null;
+    try { history.replaceState(null, "", location.pathname + location.search); } catch(e){}
+    return out;
+  }
+
+  // ---------- messages
+  var tMsg = null;
+  function message(txt){
+    var m = $("msg");
+    m.textContent = txt;
+    m.classList.remove("cache");
+    clearTimeout(tMsg);
+    tMsg = setTimeout(function(){ m.classList.add("cache"); }, 3500);
+  }
+
+  // ---------- API Turso
+  function baseUrl(){
+    var u = (cfg.u || "").trim();
+    if (/^libsql:\/\//i.test(u)) u = "https://" + u.substring(9);
+    if (!/^https?:\/\//i.test(u)) u = "https://" + u;
+    return u.replace(/\/+$/, "") + "/v2/pipeline";
+  }
+  function arg(v){
+    if (v === null || v === undefined) return {type:"null"};
+    if (typeof v === "number") return {type:"integer", value:String(Math.round(v))};
+    return {type:"text", value:String(v)};
+  }
+  // stmts : [[sql, [args]], ...] ; retourne un tableau de tableaux de lignes (valeurs en texte)
+  function sql(stmts){
+    var reqs = stmts.map(function(s){
+      return {type:"execute", stmt:{sql:s[0], args:(s[1] || []).map(arg)}};
+    });
+    reqs.push({type:"close"});
+    return fetch(baseUrl(), {
+      method:"POST",
+      headers:{"Authorization":"Bearer " + (cfg.k || "").trim(), "Content-Type":"application/json"},
+      body:JSON.stringify({requests:reqs})
+    }).then(function(r){
+      if (!r.ok) throw new Error("Erreur " + r.status);
+      return r.json();
+    }).then(function(j){
+      var out = [];
+      for (var i = 0; i < stmts.length; i++){
+        var it = j.results[i];
+        if (!it || it.type !== "ok") throw new Error((it && it.error && it.error.message) || "Erreur de la base");
+        out.push(it.response.result.rows.map(function(row){
+          return row.map(function(c){ return c.type === "null" ? null : c.value; });
+        }));
+      }
+      return out;
+    });
+  }
+
+  // ---------- dates et formats
+  function pad(n){ return (n < 10 ? "0" : "") + n; }
+  function cleJour(d){ return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); }
+  function isoNow(){ return new Date().toISOString().replace(/\.\d+Z$/, "Z"); }
+  function heure(d){ return d.getHours() + " h " + pad(d.getMinutes()); }
+  function dur(m){
+    m = Math.max(0, Math.round(m));
+    if (m < 60) return m + " min";
+    var h = Math.floor(m / 60), r = m % 60;
+    return h + " h " + pad(r);
+  }
+  var JOURS = ["dim","lun","mar","mer","jeu","ven","sam"];
+
+  // ---------- règle de décision (identique à celle du PC)
+  // Seul le quota du jour compte, a toute heure. Le bonus est plafonne comme sur le PC.
+  function decider(now, r, utilise, bonus, bloque){
+    if (bloque) return {ok:false, raison:"bloque", reste:0};
+    var dow = now.getDay(), we = (dow === 0 || dow === 6);
+    var quota = we ? r.qw : r.qs;
+    var b = Math.max(0, Math.min(bonus, r.bm));
+    var rq = quota + b - utilise;
+    if (rq <= 0) return {ok:false, raison:"quota", reste:0};
+    return {ok:true, raison:"", reste:rq};
+  }
+  // Lundi de la semaine de la date donnee (semaine du lundi au dimanche), au format AAAA-MM-JJ
+  function lundiDe(d){
+    var dec = (d.getDay() + 6) % 7;
+    return cleJour(new Date(d.getFullYear(), d.getMonth(), d.getDate() - dec));
+  }
+  function joursBonusSemaine(jours, now){
+    var lundi = lundiDe(now);
+    var dim = cleJour(new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7) + 6));
+    var n = 0;
+    for (var k in jours){
+      if (k >= lundi && k <= dim && jours[k].bonus > 0) n++;
+    }
+    return n;
+  }
+
+  // ---------- lecture
+  function charger(){
+    if (enCours || !cfg) return Promise.resolve();
+    enCours = true;
+    var aujourdhui = cleJour(new Date());
+    return sql([
+      ["SELECT quota_semaine_min, quota_weekend_min, bonus_max_jour_min, bonus_jours_max_semaine FROM regles WHERE id=1"],
+      ["SELECT bloque, bloque_par, bloque_le FROM etat WHERE id=1"],
+      ["SELECT vu_le, session_active, version, minutes_aujourdhui FROM pc WHERE id=1"],
+      ["SELECT date, minutes, bonus_min FROM jours ORDER BY date DESC LIMIT 14"],
+      ["SELECT qui, quoi, quand FROM journal ORDER BY id DESC LIMIT 10"]
+    ]).then(function(res){
+      var r = res[0][0] || [];
+      var e = res[1][0] || [];
+      var p = res[2][0] || [];
+      var jours = {};
+      res[3].forEach(function(l){ jours[l[0]] = {minutes:parseInt(l[1],10)||0, bonus:parseInt(l[2],10)||0}; });
+      donnees = {
+        regles:{
+          qs:isNaN(parseInt(r[0],10)) ? 60 : parseInt(r[0],10),
+          qw:isNaN(parseInt(r[1],10)) ? 60 : parseInt(r[1],10),
+          bm:isNaN(parseInt(r[2],10)) ? 20 : parseInt(r[2],10),
+          bj:isNaN(parseInt(r[3],10)) ? 2 : parseInt(r[3],10)
+        },
+        bloque: parseInt(e[0],10) === 1,
+        bloquePar: e[1] || "", bloqueLe: e[2] || "",
+        pc:{vu:p[0] || null, session:parseInt(p[1],10) === 1},
+        jours:jours,
+        journal:res[4]
+      };
+      afficher();
+    }).catch(function(err){
+      message("Connexion impossible : " + (err && err.message ? err.message : "réseau"));
+    }).then(function(){ enCours = false; });
+  }
+
+  // ---------- affichage
+  function afficher(){
+    if (!donnees) return;
+    var now = new Date();
+    var cle = cleJour(now);
+    var jr = donnees.jours[cle] || {minutes:0, bonus:0};
+    var utilise = jr.minutes;
+    // le PC ecrit les minutes avec jusqu'a 1 minute de retard : on prend le plus recent
+    $("utilise").textContent = dur(utilise);
+    var d = decider(now, donnees.regles, utilise, jr.bonus, donnees.bloque);
+    $("reste").textContent = d.ok ? dur(d.reste) : "0 min";
+    var st = $("statut");
+    st.className = "statut " + (d.ok ? "s-ok" : "s-ko");
+    $("bonus-jour").textContent = "Bonus aujourd'hui : " + Math.min(jr.bonus, donnees.regles.bm) + "/" + donnees.regles.bm + " min";
+    $("bonus-semaine").textContent = "Jours de bonus cette semaine : " + joursBonusSemaine(donnees.jours, now) + "/" + donnees.regles.bj;
+    if (d.ok) st.textContent = "Autorisé";
+    else if (d.raison === "bloque") st.textContent = "Bloqué" + (donnees.bloquePar ? " par " + donnees.bloquePar : "");
+    else st.textContent = "Quota du jour atteint";
+
+    // état du PC
+    var vu = donnees.pc.vu ? new Date(donnees.pc.vu) : null;
+    var enLigne = vu && !isNaN(vu.getTime()) && (now - vu) < 120000;
+    $("point").className = "point" + (enLigne ? " on" : "");
+    if (enLigne){
+      $("pc").innerHTML = "";
+      var b = document.createElement("b");
+      b.textContent = donnees.pc.session ? "PC allumé, Gaspard connecté" : "PC allumé, session fermée ou verrouillée";
+      $("pc").appendChild(b);
+    } else if (vu && !isNaN(vu.getTime())){
+      $("pc").textContent = "PC éteint ou hors ligne depuis " + heure(vu);
+    } else {
+      $("pc").textContent = "PC jamais vu pour l'instant";
+    }
+
+    $("b-bloquer").classList.toggle("cache", donnees.bloque);
+    $("b-debloquer").classList.toggle("cache", !donnees.bloque);
+
+    // réglages (on ne les écrase pas pendant la saisie)
+    if (!$("reglages").open){
+      $("r-qs").value = fmtSaisie(donnees.regles.qs);
+      $("r-qw").value = fmtSaisie(donnees.regles.qw);
+      $("r-bm").value = String(donnees.regles.bm);
+      $("r-bj").value = String(donnees.regles.bj);
+    }
+
+    // historique 7 jours
+    var h = $("histo");
+    h.innerHTML = "";
+    var maxV = 30;
+    var lignes = [];
+    for (var i = 6; i >= 0; i--){
+      var dd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      var k = cleJour(dd);
+      var j = donnees.jours[k] || {minutes:0, bonus:0};
+      var we = (dd.getDay() === 0 || dd.getDay() === 6);
+      var q = (we ? donnees.regles.qw : donnees.regles.qs) + j.bonus;
+      lignes.push({dd:dd, m:j.minutes, q:q});
+      maxV = Math.max(maxV, j.minutes, q);
+    }
+    lignes.forEach(function(l){
+      var div = document.createElement("div"); div.className = "barre";
+      var a = document.createElement("span"); a.className = "j"; a.textContent = JOURS[l.dd.getDay()] + " " + l.dd.getDate();
+      var piste = document.createElement("span"); piste.className = "piste";
+      var rem = document.createElement("span"); rem.className = "rempli" + (l.m >= l.q ? " plein" : "");
+      rem.style.display = "block";
+      rem.style.width = Math.min(100, Math.round(l.m / maxV * 100)) + "%";
+      piste.appendChild(rem);
+      var v = document.createElement("span"); v.className = "v"; v.textContent = dur(l.m);
+      div.appendChild(a); div.appendChild(piste); div.appendChild(v);
+      h.appendChild(div);
+    });
+
+    // journal
+    var ul = $("journal");
+    ul.innerHTML = "";
+    if (!donnees.journal.length){
+      var li0 = document.createElement("li"); li0.className = "petit"; li0.textContent = "Rien pour l'instant";
+      ul.appendChild(li0);
+    }
+    donnees.journal.forEach(function(l){
+      var li = document.createElement("li");
+      var q = new Date(l[2]);
+      var quand = isNaN(q.getTime()) ? "" : ", " + (cleJour(q) === cle ? "" : pad(q.getDate()) + "/" + pad(q.getMonth()+1) + " ") + heure(q);
+      li.textContent = (l[0] || "?") + " : " + (l[1] || "") + quand;
+      ul.appendChild(li);
+    });
+  }
+
+  function fmtSaisie(m){
+    if (m % 60 === 0) return String(m);
+    return Math.floor(m / 60) + ":" + pad(m % 60);
+  }
+  function parseDuree(s){
+    s = String(s || "").trim().toLowerCase().replace(",", ".");
+    var m;
+    if ((m = /^(\d+)\s*(?:h|:)\s*(\d{0,2})\s*(?:min)?$/.exec(s))) return parseInt(m[1],10) * 60 + (m[2] ? parseInt(m[2],10) : 0);
+    if ((m = /^(\d+)\s*(?:min)?$/.exec(s))) return parseInt(m[1],10);
+    return null;
+  }
+
+  // ---------- actions
+  function action(stmts, texteJournal, confirmation){
+    stmts.push(["INSERT INTO journal(qui, quoi, quand) VALUES(?, ?, ?)", [cfg.who, texteJournal, isoNow()]]);
+    return sql(stmts).then(function(){
+      message(confirmation || "C'est fait. Effet sur le PC sous 1 minute.");
+      enCours = false;
+      return charger();
+    }).catch(function(err){
+      message("Échec : " + (err && err.message ? err.message : "réseau"));
+    });
+  }
+
+  function bloquer(){
+    action([["UPDATE etat SET bloque=1, bloque_par=?, bloque_le=? WHERE id=1", [cfg.who, isoNow()]]], "Bloqué");
+  }
+  function debloquer(){
+    action([["UPDATE etat SET bloque=0, bloque_par=?, bloque_le=? WHERE id=1", [cfg.who, isoNow()]]], "Débloqué");
+  }
+  function bonus(n){
+    var now = new Date();
+    var cle = cleJour(now);
+    // Relecture fraîche des plafonds et des jours de bonus avant d'accepter l'ajout
+    sql([
+      ["SELECT bonus_max_jour_min, bonus_jours_max_semaine FROM regles WHERE id=1"],
+      ["SELECT date, minutes, bonus_min FROM jours ORDER BY date DESC LIMIT 14"]
+    ]).then(function(res){
+      var r = res[0][0] || [];
+      var bm = isNaN(parseInt(r[0],10)) ? 20 : parseInt(r[0],10);
+      var bj = isNaN(parseInt(r[1],10)) ? 2 : parseInt(r[1],10);
+      var jours = {};
+      res[1].forEach(function(l){ jours[l[0]] = {minutes:parseInt(l[1],10)||0, bonus:parseInt(l[2],10)||0}; });
+      var deja = jours[cle] ? jours[cle].bonus : 0;
+      if (deja + n > bm){
+        message("Refusé : le bonus d'un jour est limité à " + bm + " min (déjà " + deja + " aujourd'hui).");
+        return;
+      }
+      if (deja === 0 && joursBonusSemaine(jours, now) >= bj){
+        message("Refusé : déjà " + bj + " jours de bonus cette semaine.");
+        return;
+      }
+      // bonus_min du jour = bonus + n ; ne touche jamais aux minutes (écrites par le PC)
+      return action([["INSERT INTO jours(date, minutes, bonus_min) VALUES(?, 0, ?) ON CONFLICT(date) DO UPDATE SET bonus_min = bonus_min + ?", [cle, n, n]]], "+" + n + " min");
+    }).catch(function(err){
+      message("Échec : " + (err && err.message ? err.message : "réseau"));
+    });
+  }
+  function enregistrerReglages(){
+    var qs = parseDuree($("r-qs").value), qw = parseDuree($("r-qw").value);
+    var bm = parseDuree($("r-bm").value), bj = parseInt($("r-bj").value, 10);
+    if (qs === null || qw === null){ message("Quota illisible. Exemple : 60 ou 1:00"); return; }
+    if (bm === null){ message("Bonus maximum illisible. Exemple : 20"); return; }
+    if (isNaN(bj) || bj < 0 || bj > 7){ message("Jours de bonus : un nombre de 0 à 7."); return; }
+    action([["UPDATE regles SET quota_semaine_min=?, quota_weekend_min=?, bonus_max_jour_min=?, bonus_jours_max_semaine=?, maj_le=? WHERE id=1", [qs, qw, bm, bj, isoNow()]]],
+      "Réglages modifiés").then(function(){ $("reglages").open = false; });
+  }
+
+  // ---------- écrans
+  function montrerAccueil(pre){
+    $("principal").classList.add("cache");
+    $("accueil").classList.remove("cache");
+    if (pre){
+      if (pre.u) $("f-url").value = pre.u;
+      if (pre.k) $("f-cle").value = pre.k;
+      if (pre.who) choisirQui(pre.who);
+    }
+  }
+  function choisirQui(nom){
+    $("q-ben").classList.toggle("choisi", nom === "Benoît");
+    $("q-emi").classList.toggle("choisi", nom === "Émilie");
+    $("accueil").setAttribute("data-qui", nom);
+  }
+  function montrerPrincipal(){
+    $("accueil").classList.add("cache");
+    $("principal").classList.remove("cache");
+    charger();
+    clearInterval(minuteur);
+    minuteur = setInterval(function(){ if (!document.hidden) charger(); }, 20000);
+  }
+
+  function init(){
+    $("q-ben").onclick = function(){ choisirQui("Benoît"); };
+    $("q-emi").onclick = function(){ choisirQui("Émilie"); };
+    $("f-ok").onclick = function(){
+      var u = $("f-url").value.trim(), k = $("f-cle").value.trim(), w = $("accueil").getAttribute("data-qui");
+      if (!u || !k){ message("Adresse et clé nécessaires."); return; }
+      if (!w){ message("Choisis Benoît ou Émilie."); return; }
+      cfg = {u:u, k:k, who:w};
+      if (!ecrire(cfg)) message("Mémoire du navigateur indisponible : à refaire à chaque ouverture.");
+      montrerPrincipal();
+    };
+    $("b-bloquer").onclick = bloquer;
+    $("b-debloquer").onclick = debloquer;
+    $("b-regl").onclick = enregistrerReglages;
+    var bs = document.querySelectorAll("[data-bonus]");
+    for (var i = 0; i < bs.length; i++){
+      (function(b){ b.onclick = function(){ bonus(parseInt(b.getAttribute("data-bonus"), 10)); }; })(bs[i]);
+    }
+    $("changer").onclick = function(e){
+      e.preventDefault();
+      if (!confirm("Changer de compte ou de clé ?")) return;
+      var ancien = cfg;
+      effacer(); clearInterval(minuteur); cfg = null; donnees = null;
+      montrerAccueil(ancien ? {u:ancien.u, who:ancien.who} : null);
+    };
+    document.addEventListener("visibilitychange", function(){ if (!document.hidden && cfg) charger(); });
+
+    var stocke = lire();
+    var frag = lireFragment();
+    if (frag){
+      var base = stocke || {};
+      var pre = {u:frag.u || base.u, k:frag.k || base.k, who:base.who};
+      if (pre.u && pre.k && pre.who){
+        cfg = pre; ecrire(cfg); montrerPrincipal();
+      } else {
+        montrerAccueil(pre);
+      }
+    } else if (stocke && stocke.u && stocke.k && stocke.who){
+      cfg = stocke; montrerPrincipal();
+    } else {
+      montrerAccueil(stocke);
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
