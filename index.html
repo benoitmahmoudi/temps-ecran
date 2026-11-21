@@ -217,7 +217,7 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
       }
     }
     if (!out.u && !out.k) return null;
-    try { history.replaceState(null, "", location.pathname + location.search); } catch(e){}
+    // On garde la cle dans l'adresse : sur iPhone, l'icone d'ecran d'accueil a sa propre memoire et repart de cette adresse.
     return out;
   }
 
