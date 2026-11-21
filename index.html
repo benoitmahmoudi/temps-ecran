@@ -81,6 +81,17 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
 .qui{display:flex;gap:10px;margin-top:6px}
 .qui button{flex:1}
 .qui button.choisi{background:var(--bleu);color:#fff;border-color:var(--bleu)}
+.appli{margin-top:14px;padding-top:12px;border-top:1px solid var(--ligne);font-size:16px}
+.appli .nom{font-weight:650;color:var(--texte)}
+.appli .titre{font-size:13px;color:var(--doux);margin-top:2px;word-break:break-word}
+.appli .ago{font-size:13px;color:var(--doux);margin-top:2px}
+.appli.alerte .nom,.appli.alerte .titre{color:var(--rouge)}
+.appli.eteint{color:var(--doux)}
+#photo-zone{margin-top:12px}
+#photo-etat{font-size:15px;color:var(--doux);text-align:center;margin-top:6px}
+#photo-img{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--ligne);cursor:zoom-in}
+#photo-img.agrandi{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000;border:0;border-radius:0;z-index:20;cursor:zoom-out}
+#photo-heure{font-size:13px;color:var(--doux);text-align:center;margin-top:4px}
 </style>
 </head>
 <body>
@@ -114,6 +125,13 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
     </div>
     <div id="statut" class="statut s-hp">Chargement</div>
     <div class="pc"><span id="point" class="point"></span><span id="pc">...</span></div>
+    <div id="appli" class="appli cache"></div>
+    <div class="rang"><button type="button" id="b-photo" class="bonus">Voir l'écran</button></div>
+    <div id="photo-zone" class="cache">
+      <div id="photo-etat"></div>
+      <img id="photo-img" class="cache" alt="Écran de Gaspard">
+      <div id="photo-heure"></div>
+    </div>
   </div>
 
   <div class="carte">
@@ -264,6 +282,28 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
   }
   var JOURS = ["dim","lun","mar","mer","jeu","ven","sam"];
 
+  // ---------- appli au premier plan
+  var NOMS_APPLI = {chrome:"Chrome", msedge:"Edge", firefox:"Firefox", winword:"Word", excel:"Excel", powerpnt:"PowerPoint", explorer:"Explorateur"};
+  function nomAppli(brut){
+    var b = String(brut || "").trim();
+    var k = b.toLowerCase();
+    return Object.prototype.hasOwnProperty.call(NOMS_APPLI, k) ? NOMS_APPLI[k] : b;
+  }
+  function ilYa(sec){
+    sec = Math.max(0, Math.round(sec));
+    if (sec < 60) return "il y a " + sec + " s";
+    return "il y a " + Math.floor(sec / 60) + " min";
+  }
+  // Retourne {etat:"eteint"|"verrouille"|"appli", nom, titre, ago, alerte}. Fonction pure (maintenant en ms).
+  function infoAppli(p, maintenantMs){
+    var le = p && p.appliLe ? new Date(p.appliLe) : null;
+    if (!le || isNaN(le.getTime()) || (maintenantMs - le.getTime()) > 120000) return {etat:"eteint"};
+    var nom = nomAppli(p.appli);
+    if (!nom) return {etat:"verrouille"};
+    var titre = String(p.titre || "");
+    return {etat:"appli", nom:nom, titre:titre, ago:ilYa((maintenantMs - le.getTime()) / 1000), alerte:/youtube/i.test(titre)};
+  }
+
   // ---------- règle de décision (identique à celle du PC)
   // Seul le quota du jour compte, a toute heure. Le bonus est plafonne comme sur le PC.
   function decider(now, r, utilise, bonus, bloque){
@@ -298,7 +338,7 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
     return sql([
       ["SELECT quota_semaine_min, quota_weekend_min, bonus_max_jour_min, bonus_jours_max_semaine FROM regles WHERE id=1"],
       ["SELECT bloque, bloque_par, bloque_le FROM etat WHERE id=1"],
-      ["SELECT vu_le, session_active, version, minutes_aujourdhui FROM pc WHERE id=1"],
+      ["SELECT vu_le, session_active, version, minutes_aujourdhui, appli, titre, appli_le FROM pc WHERE id=1"],
       ["SELECT date, minutes, bonus_min FROM jours ORDER BY date DESC LIMIT 14"],
       ["SELECT qui, quoi, quand FROM journal ORDER BY id DESC LIMIT 10"]
     ]).then(function(res){
@@ -316,7 +356,7 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
         },
         bloque: parseInt(e[0],10) === 1,
         bloquePar: e[1] || "", bloqueLe: e[2] || "",
-        pc:{vu:p[0] || null, session:parseInt(p[1],10) === 1},
+        pc:{vu:p[0] || null, session:parseInt(p[1],10) === 1, appli:p[4] || "", titre:p[5] || "", appliLe:p[6] || ""},
         jours:jours,
         journal:res[4]
       };
@@ -359,6 +399,8 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
     } else {
       $("pc").textContent = "PC jamais vu pour l'instant";
     }
+
+    afficherAppli();
 
     $("b-bloquer").classList.toggle("cache", donnees.bloque);
     $("b-debloquer").classList.toggle("cache", !donnees.bloque);
@@ -411,6 +453,106 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
       var quand = isNaN(q.getTime()) ? "" : ", " + (cleJour(q) === cle ? "" : pad(q.getDate()) + "/" + pad(q.getMonth()+1) + " ") + heure(q);
       li.textContent = (l[0] || "?") + " : " + (l[1] || "") + quand;
       ul.appendChild(li);
+    });
+  }
+
+  // Ligne « En ce moment » (textContent partout : le titre de fenêtre n'est jamais interprété comme du HTML)
+  function afficherAppli(){
+    if (!donnees) return;
+    var box = $("appli");
+    var a = infoAppli(donnees.pc, Date.now());
+    box.innerHTML = "";
+    box.className = "appli";
+    if (a.etat === "eteint" || a.etat === "verrouille"){
+      box.classList.add("eteint");
+      box.textContent = a.etat === "eteint" ? "PC éteint ou verrouillé" : "PC verrouillé ou personne connecté";
+      return;
+    }
+    if (a.alerte) box.classList.add("alerte");
+    var l1 = document.createElement("div");
+    l1.appendChild(document.createTextNode("En ce moment : "));
+    var nom = document.createElement("span"); nom.className = "nom"; nom.textContent = a.nom;
+    l1.appendChild(nom);
+    box.appendChild(l1);
+    if (a.titre){
+      var t = document.createElement("div"); t.className = "titre"; t.textContent = a.titre;
+      box.appendChild(t);
+    }
+    var ag = document.createElement("div"); ag.className = "ago"; ag.textContent = a.ago;
+    box.appendChild(ag);
+  }
+
+  // ---------- photo de l'écran, à la demande
+  var photoEnCours = false;
+  var DELAI_PHOTO = 90000, PAS_PHOTO = 4000;
+  function etatPhoto(txt){
+    $("photo-zone").classList.remove("cache");
+    $("photo-etat").textContent = txt;
+  }
+  function finPhoto(){
+    photoEnCours = false;
+    $("b-photo").disabled = false;
+  }
+  function voirEcran(){
+    if (photoEnCours || !cfg) return;
+    photoEnCours = true;
+    $("b-photo").disabled = true;
+    $("photo-img").classList.add("cache");
+    $("photo-img").classList.remove("agrandi");
+    $("photo-heure").textContent = "";
+    etatPhoto("Photo en cours (jusqu'à 30 s)…");
+    var avant = "";
+    // On compare à l'heure de la photo précédente (et non à l'horloge du téléphone, qui peut différer de celle du PC)
+    sql([["SELECT quand FROM capture WHERE id=1"]]).then(function(res){
+      avant = (res[0][0] && res[0][0][0]) || "";
+      return sql([
+        ["UPDATE etat SET demande_photo=1 WHERE id=1"],
+        ["INSERT INTO journal(qui, quoi, quand) VALUES(?, ?, ?)", [cfg.who, "Photo demandée", isoNow()]]
+      ]);
+    }).then(function(){
+      var debut = Date.now();
+      (function boucle(){
+        setTimeout(function(){
+          sql([["SELECT quand FROM capture WHERE id=1"]]).then(function(res){
+            var q = (res[0][0] && res[0][0][0]) || "";
+            if (q && q !== avant) return montrerPhoto(q);
+            if (Date.now() - debut >= DELAI_PHOTO) return abandonPhoto();
+            boucle();
+          }).catch(function(){
+            if (Date.now() - debut >= DELAI_PHOTO) return abandonPhoto();
+            boucle(); // réseau instable : on réessaie jusqu'au délai
+          });
+        }, PAS_PHOTO);
+      })();
+    }).catch(function(err){
+      etatPhoto("Échec : " + (err && err.message ? err.message : "réseau"));
+      finPhoto();
+    });
+  }
+  function abandonPhoto(){
+    etatPhoto("Pas de réponse du PC");
+    // Annule la demande pour qu'elle ne parte pas plus tard par surprise
+    sql([["UPDATE etat SET demande_photo=0 WHERE id=1"]]).catch(function(){});
+    finPhoto();
+  }
+  function montrerPhoto(quand){
+    return sql([["SELECT image FROM capture WHERE id=1"]]).then(function(res){
+      var img = (res[0][0] && res[0][0][0]) || "";
+      var d = new Date(quand);
+      if (!img){
+        etatPhoto("PC verrouillé, pas de photo");
+        finPhoto();
+        return;
+      }
+      $("photo-etat").textContent = "";
+      var im = $("photo-img");
+      im.src = "data:image/jpeg;base64," + img;
+      im.classList.remove("cache");
+      $("photo-heure").textContent = "Photo de " + (isNaN(d.getTime()) ? "" : heure(d));
+      finPhoto();
+    }).catch(function(err){
+      etatPhoto("Échec : " + (err && err.message ? err.message : "réseau"));
+      finPhoto();
     });
   }
 
@@ -519,6 +661,9 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
     $("b-bloquer").onclick = bloquer;
     $("b-debloquer").onclick = debloquer;
     $("b-regl").onclick = enregistrerReglages;
+    $("b-photo").onclick = voirEcran;
+    $("photo-img").onclick = function(){ this.classList.toggle("agrandi"); };
+    setInterval(function(){ if (!document.hidden) afficherAppli(); }, 5000); // fait avancer « il y a N s »
     var bs = document.querySelectorAll("[data-bonus]");
     for (var i = 0; i < bs.length; i++){
       (function(b){ b.onclick = function(){ bonus(parseInt(b.getAttribute("data-bonus"), 10)); }; })(bs[i]);
