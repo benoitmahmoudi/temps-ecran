@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache">
 <title>Gaspard</title>
-<meta name="theme-color" content="#f6f7f9">
+<meta name="theme-color" content="#f3efe6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14130f" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Gaspard">
@@ -13,89 +15,96 @@
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <style>
+/* Tableau de bord sobre : papier chaud, encre, un seul chiffre par idée. Les gros chiffres sont en police arrondie du téléphone. */
 :root{
-  --fond:#f6f7f9; --carte:#ffffff; --texte:#1b1f24; --doux:#5f6b7a; --ligne:#e3e7ec;
-  --vert:#1f8a4c; --vert-f:#e5f4eb; --rouge:#c0362c; --rouge-f:#fbe9e7; --orange:#b86e00; --orange-f:#fff1d9;
-  --bleu:#2457d6; --bleu-f:#e8eefc;
+  --fond:#f3efe6; --carte:#fffdf8; --texte:#1c1a16; --doux:#6b665c; --ligne:#e4ddcc;
+  --vert:#1c7a45; --vert-f:#e0f1e6; --rouge:#c3302a; --rouge-f:#fbe5e1; --orange:#b3600a; --orange-f:#fdecd0;
+  --bleu:#27479a; --bleu-f:#e6ebf8;
+  --chiffres:ui-rounded,"SF Pro Rounded","Avenir Next Rounded","Nunito","Segoe UI",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root{
-    --fond:#111418; --carte:#1a1f26; --texte:#eef1f5; --doux:#9aa6b5; --ligne:#2a313b;
-    --vert:#4cc183; --vert-f:#13301f; --rouge:#ff7b6f; --rouge-f:#3a1b18; --orange:#ffb44d; --orange-f:#3a2a10;
-    --bleu:#7da2ff; --bleu-f:#1b2740;
+    --fond:#14130f; --carte:#1d1b16; --texte:#f2eee4; --doux:#a29b8c; --ligne:#302d25;
+    --vert:#5fd08f; --vert-f:#15301f; --rouge:#ff8378; --rouge-f:#3b1c19; --orange:#ffb454; --orange-f:#3b2a0f;
+    --bleu:#8fabff; --bleu-f:#1b2442;
   }
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--fond);color:var(--texte);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:17px;line-height:1.4}
-body{padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom)) 16px}
-main{max-width:480px;margin:0 auto}
-h1{font-size:20px;margin:4px 0 14px;font-weight:650}
-h2{font-size:15px;margin:0 0 10px;color:var(--doux);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-.carte{background:var(--carte);border:1px solid var(--ligne);border-radius:16px;padding:16px;margin-bottom:14px}
+body{padding:max(14px,env(safe-area-inset-top)) 14px max(24px,env(safe-area-inset-bottom)) 14px}
+main{max-width:430px;margin:0 auto}
+h1{font-size:22px;margin:2px 0 12px;font-weight:700;letter-spacing:-.01em}
+h2{font-size:13px;margin:0 0 10px;color:var(--doux);font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+.entete{display:flex;align-items:baseline;justify-content:space-between}
+.carte{background:var(--carte);border:1px solid var(--ligne);border-radius:18px;padding:16px;margin-bottom:12px}
 .cache{display:none !important}
-.gros{display:flex;gap:12px}
-.gros > div{flex:1;text-align:center}
-.chiffre{font-size:44px;font-weight:700;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums}
-.leg{font-size:14px;color:var(--doux);margin-top:2px}
-.statut{display:inline-block;margin-top:14px;padding:8px 14px;border-radius:999px;font-weight:650;font-size:16px}
-.s-ok{background:var(--vert-f);color:var(--vert)}
-.s-ko{background:var(--rouge-f);color:var(--rouge)}
-.s-hp{background:var(--orange-f);color:var(--orange)}
 .centre{text-align:center}
-.pc{margin-top:12px;font-size:15px;color:var(--doux)}
-.pc b{color:var(--texte)}
-.point{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--doux)}
-.point.on{background:var(--vert)}
+.petit{font-size:13px;color:var(--doux)}
 button,input,select{font:inherit;color:inherit}
-button{min-height:48px;min-width:44px;border:1px solid var(--ligne);background:var(--carte);border-radius:12px;padding:0 14px;font-weight:600;cursor:pointer}
+button{min-height:48px;min-width:48px;border:1px solid var(--ligne);background:var(--carte);border-radius:14px;padding:0 14px;font-weight:650;cursor:pointer}
 button:active{transform:scale(.98)}
-button:disabled{opacity:.5}
+button:disabled{opacity:.38}
 .rang{display:flex;gap:10px;margin-top:10px}
 .rang > button{flex:1}
-.bloquer{background:var(--rouge);border-color:var(--rouge);color:#fff}
-.debloquer{background:var(--vert);border-color:var(--vert);color:#fff}
-@media (prefers-color-scheme: dark){ .bloquer,.debloquer{color:#10151a} }
-.bonus{background:var(--bleu-f);border-color:transparent;color:var(--bleu);font-size:18px}
+.second{background:var(--bleu-f);border-color:transparent;color:var(--bleu)}
 input[type=text],input[type=password],input[type=time],input[type=url]{width:100%;min-height:48px;border:1px solid var(--ligne);border-radius:12px;padding:0 12px;background:var(--fond)}
 label{display:block;font-size:14px;color:var(--doux);margin:12px 0 4px}
-.deux{display:flex;gap:10px}
-.deux > div{flex:1}
-details summary{min-height:44px;display:flex;align-items:center;font-weight:650;cursor:pointer;list-style:none}
+textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius:12px;padding:10px 12px;background:var(--fond);resize:vertical;font:inherit;font-size:15px;line-height:1.4}
+
+#demo-bandeau{background:var(--orange-f);color:var(--orange);border-radius:12px;padding:8px 12px;font-size:14px;font-weight:650;margin-bottom:12px;text-align:center}
+
+/* 1. Deux compteurs */
+.tuiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.tuile{--bande:var(--bleu);background:var(--carte);border:1px solid var(--ligne);box-shadow:inset 0 6px 0 var(--bande);border-radius:18px;padding:16px 10px 14px;text-align:center}
+.tuile.devoirs{--bande:var(--vert)}
+.tuile.ok{--bande:var(--bleu)}
+.tuile.alerte{--bande:var(--orange)}
+.tuile.fini{--bande:var(--rouge)}
+.etiq{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--doux)}
+.grand{font-family:var(--chiffres);font-size:46px;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:4px 0 2px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tuile.alerte .grand{color:var(--orange)}
+.tuile.fini .grand{color:var(--rouge)}
+.tuile.devoirs .grand{color:var(--vert)}
+.sous{font-size:14px;color:var(--doux)}
+
+/* ligne d'état */
+.etat{padding:12px 16px}
+.pc{display:flex;align-items:center;gap:8px;font-weight:650}
+.point{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--doux);flex:none}
+.point.on{background:var(--vert);box-shadow:0 0 0 4px var(--vert-f)}
+.appli{margin-top:10px;padding-top:10px;border-top:1px solid var(--ligne);font-size:16px}
+.appli .nom{font-weight:750}
+.appli .titre{font-size:13px;color:var(--doux);margin-top:2px;word-break:break-word}
+.appli.alerte .nom{color:var(--rouge)}
+.appli.devoirs .nom{color:var(--vert)}
+.badge{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:var(--vert-f);color:var(--vert);font-size:12px;font-weight:800;vertical-align:middle}
+
+/* 2. Compteur d'ajustement */
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:76px;height:76px;border-radius:22px;font-family:var(--chiffres);font-size:40px;font-weight:700;line-height:1;padding:0;flex:none;background:var(--bleu-f);border-color:transparent;color:var(--bleu)}
+.stepper .val{flex:1;text-align:center;font-family:var(--chiffres);font-size:40px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.adj-note{text-align:center;margin-top:8px}
+#adj-raison{color:var(--orange);font-weight:650}
+.adj-note:empty{display:none}
+
+/* 3. Bloquer */
+.gros-btn{width:100%;min-height:60px;font-size:19px;color:#fff;border:0}
+.bloquer{background:var(--rouge)}
+.debloquer{background:var(--vert)}
+@media (prefers-color-scheme: dark){ .bloquer,.debloquer{color:#14130f} }
+#bloc-carte{background:var(--rouge-f);color:var(--rouge);border-radius:12px;padding:12px 14px;font-weight:700;margin-bottom:10px;text-align:center}
+
+/* 4. Voir l'écran */
+#photo-img{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--ligne);cursor:zoom-in;background:#000}
+#photo-img.agrandi{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000;border:0;border-radius:0;z-index:20;cursor:zoom-out}
+#photo-heure{font-size:14px;color:var(--doux);text-align:center;margin-top:6px}
+#photo-etat{font-size:14px;color:var(--doux);text-align:center;margin-top:4px;min-height:1.2em}
+
+/* 5. Ce qu'il a fait */
+details summary{min-height:48px;display:flex;align-items:center;font-weight:700;cursor:pointer;list-style:none}
 details summary::-webkit-details-marker{display:none}
 details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
-.barre{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:14px}
-.barre .j{width:52px;color:var(--doux)}
-.barre .piste{flex:1;height:16px;background:var(--fond);border-radius:8px;overflow:hidden;position:relative}
-.barre .rempli{height:100%;background:var(--bleu);border-radius:8px}
-.barre .rempli.plein{background:var(--orange)}
-.barre .v{width:62px;text-align:right;font-variant-numeric:tabular-nums}
-.journal{list-style:none;margin:0;padding:0;font-size:15px}
-.journal li{padding:8px 0;border-top:1px solid var(--ligne)}
-.journal li:first-child{border-top:0}
-.petit{font-size:13px;color:var(--doux)}
-.note{text-align:center;margin:6px 0 14px}
-.pied{text-align:center;margin-top:22px}
-.pied a{color:var(--doux);font-size:14px;text-decoration:underline;display:inline-block;padding:12px}
-#msg{position:fixed;left:16px;right:16px;bottom:max(16px,env(safe-area-inset-bottom));max-width:448px;margin:0 auto;padding:12px 16px;border-radius:12px;background:var(--texte);color:var(--fond);font-weight:600;text-align:center;z-index:10}
-.qui{display:flex;gap:10px;margin-top:6px}
-.qui button{flex:1}
-.qui button.choisi{background:var(--bleu);color:#fff;border-color:var(--bleu)}
-.appli{margin-top:14px;padding-top:12px;border-top:1px solid var(--ligne);font-size:16px}
-.appli .nom{font-weight:650;color:var(--texte)}
-.appli .titre{font-size:13px;color:var(--doux);margin-top:2px;word-break:break-word}
-.appli .ago{font-size:13px;color:var(--doux);margin-top:2px}
-.appli.alerte .nom,.appli.alerte .titre{color:var(--rouge)}
-.appli.eteint{color:var(--doux)}
-#photo-zone{margin-top:12px}
-#photo-etat{font-size:15px;color:var(--doux);text-align:center;margin-top:6px}
-#photo-img{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--ligne);cursor:zoom-in}
-#photo-img.agrandi{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000;border:0;border-radius:0;z-index:20;cursor:zoom-out}
-#photo-heure{font-size:13px;color:var(--doux);text-align:center;margin-top:4px}
-.temps{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:16px;font-weight:650}
-.temps .dev{color:var(--vert)}
-.badge{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:var(--vert-f);color:var(--vert);font-size:12px;font-weight:700;vertical-align:middle}
-textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius:12px;padding:10px 12px;background:var(--fond);resize:vertical;font:inherit;font-size:15px;line-height:1.4}
 .sess{border-top:1px solid var(--ligne)}
 .sess:first-child{border-top:0}
 .sess > button{display:block;width:100%;min-height:56px;text-align:left;border:0;border-radius:0;background:transparent;padding:10px 2px;font-weight:500}
@@ -118,6 +127,30 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
 #visu .bas{display:flex;gap:10px;padding:10px 12px max(14px,env(safe-area-inset-bottom))}
 #visu .bas button{flex:1;background:#222;border-color:#333;color:#fff;font-size:20px}
 #visu .titre2{padding:0 12px 4px;color:#bbb;font-size:12px;word-break:break-word;max-height:3.2em;overflow:hidden}
+
+/* 6. Historique */
+.legende{display:flex;gap:14px;font-size:13px;color:var(--doux);margin-bottom:8px}
+.legende i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:baseline}
+.jour{display:grid;grid-template-columns:48px 1fr auto;grid-template-rows:auto auto;gap:3px 10px;align-items:center;padding:7px 0;border-top:1px solid var(--ligne);font-size:14px}
+.jour:first-of-type{border-top:0}
+.jour .j{grid-row:1 / span 2;color:var(--doux);font-weight:650}
+.jour .piste{height:10px;background:var(--fond);border-radius:5px;overflow:hidden}
+.jour .rempli{display:block;height:100%;border-radius:5px;background:var(--bleu)}
+.jour .rempli.plein{background:var(--orange)}
+.jour .rempli.dev{background:var(--vert)}
+.jour .v{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.jour .v2{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--doux);font-size:13px}
+
+/* 7. Journal */
+.journal{list-style:none;margin:0;padding:0;font-size:15px}
+.journal li{padding:8px 0;border-top:1px solid var(--ligne)}
+.journal li:first-child{border-top:0}
+.pied{text-align:center;margin-top:18px}
+.pied a{color:var(--doux);font-size:14px;text-decoration:underline;display:inline-block;padding:14px}
+#msg{position:fixed;left:14px;right:14px;bottom:max(16px,env(safe-area-inset-bottom));max-width:402px;margin:0 auto;padding:12px 16px;border-radius:12px;background:var(--texte);color:var(--fond);font-weight:650;text-align:center;z-index:40}
+.qui{display:flex;gap:10px;margin-top:6px}
+.qui button{flex:1}
+.qui button.choisi{background:var(--bleu);color:#fff;border-color:var(--bleu)}
 </style>
 </head>
 <body>
@@ -136,52 +169,90 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
       <button type="button" id="q-ben" data-qui="Benoît">Benoît</button>
       <button type="button" id="q-emi" data-qui="Émilie">Émilie</button>
     </div>
-    <div class="rang"><button type="button" id="f-ok" class="bonus">Enregistrer et ouvrir</button></div>
+    <div class="rang"><button type="button" id="f-ok" class="second">Enregistrer et ouvrir</button></div>
   </div>
 </section>
 
 <!-- Écran principal -->
 <section id="principal" class="cache">
-  <h1>Gaspard</h1>
+  <div id="demo-bandeau" class="cache">Démonstration : données fictives, rien n'est envoyé</div>
+  <div class="entete"><h1>Gaspard</h1><span class="petit" id="qui-moi"></span></div>
 
-  <div class="carte centre">
-    <div class="gros">
-      <div><div class="chiffre" id="utilise">...</div><div class="leg">loisirs utilisés</div></div>
-      <div><div class="chiffre" id="reste">...</div><div class="leg">loisirs restants</div></div>
+  <!-- 1. Compteurs et état -->
+  <div class="tuiles">
+    <div class="tuile ok" id="tuile-loisirs">
+      <div class="etiq">Loisirs</div>
+      <div class="sous">il reste</div>
+      <div class="grand" id="reste">...</div>
+      <div class="sous" id="utilise">...</div>
     </div>
-    <div class="temps"><span id="t-loisirs">Loisirs : ...</span><span id="t-devoirs" class="dev">Devoirs : ...</span></div>
-    <div id="statut" class="statut s-hp">Chargement</div>
+    <div class="tuile devoirs" id="tuile-devoirs">
+      <div class="etiq">Devoirs</div>
+      <div class="sous">aujourd'hui</div>
+      <div class="grand" id="t-devoirs">...</div>
+      <div class="sous">hors quota</div>
+    </div>
+  </div>
+  <div class="carte etat">
     <div class="pc"><span id="point" class="point"></span><span id="pc">...</span></div>
     <div id="appli" class="appli cache"></div>
-    <div class="rang"><button type="button" id="b-photo" class="bonus">Voir l'écran</button></div>
-    <div id="photo-zone" class="cache">
-      <div id="photo-etat"></div>
+  </div>
+
+  <!-- 2. Ajustement du jour -->
+  <div class="carte">
+    <h2>Loisirs autorisés aujourd'hui</h2>
+    <div class="stepper">
+      <button type="button" id="b-moins" aria-label="Retirer 5 minutes">&minus;</button>
+      <div class="val" id="adj-val" aria-live="polite">...</div>
+      <button type="button" id="b-plus" aria-label="Ajouter 5 minutes">+</button>
+    </div>
+    <div class="petit adj-note" id="adj-normal"></div>
+    <div class="petit adj-note" id="adj-raison"></div>
+    <div class="petit adj-note" id="adj-etat"></div>
+  </div>
+
+  <!-- 3. Bloquer -->
+  <div class="carte">
+    <div id="bloc-carte" class="cache"></div>
+    <button type="button" id="b-bloquer" class="gros-btn bloquer">Bloquer maintenant</button>
+    <button type="button" id="b-debloquer" class="gros-btn debloquer">Débloquer</button>
+  </div>
+
+  <!-- 4. Voir l'écran -->
+  <div class="carte">
+    <h2>Voir l'écran</h2>
+    <div id="photo-zone">
       <img id="photo-img" class="cache" alt="Écran de Gaspard">
       <div id="photo-heure"></div>
+      <div id="photo-etat">Aucune photo pour l'instant</div>
     </div>
+    <div class="rang"><button type="button" id="b-photo" class="second">Voir l'écran maintenant</button></div>
   </div>
 
+  <!-- 5. Ce qu'il a fait -->
   <div class="carte">
-    <h2>Actions</h2>
-    <div class="rang">
-      <button type="button" id="b-bloquer" class="bloquer">Bloquer maintenant</button>
-      <button type="button" id="b-debloquer" class="debloquer">Débloquer</button>
-    </div>
-    <div class="rang">
-      <button type="button" class="bonus" data-bonus="10">+10 min</button>
-      <button type="button" class="bonus" data-bonus="20">+20 min</button>
-    </div>
-    <div class="rang" style="margin-top:8px">
-      <button type="button" class="bonus" data-bonus="-10">&minus;10 min</button>
-      <button type="button" class="bonus" data-bonus="-20">&minus;20 min</button>
-    </div>
-    <div class="petit" style="margin-top:12px">
-      <div id="bonus-jour">Bonus aujourd'hui : ...</div>
-      <div id="bonus-semaine">Jours de bonus cette semaine : ...</div>
-    </div>
-    <div class="petit note" style="margin-top:12px;margin-bottom:0">Effet sur le PC sous 1 minute</div>
+    <details id="activite">
+      <summary>Ce qu'il a fait</summary>
+      <div class="petit" style="margin-bottom:6px">Une photo par minute, gardée 7 jours. Touche une session pour voir ses photos.</div>
+      <div id="sessions"></div>
+      <div id="sessions-etat" class="petit centre"></div>
+    </details>
   </div>
 
+  <!-- 6. Historique -->
+  <div class="carte">
+    <h2>7 derniers jours</h2>
+    <div class="legende"><span><i style="background:var(--bleu)"></i>Loisirs / autorisé</span><span><i style="background:var(--vert)"></i>Devoirs</span></div>
+    <div id="histo"></div>
+  </div>
+
+  <!-- 7. Journal -->
+  <div class="carte">
+    <h2>Dernières actions</h2>
+    <ul id="journal" class="journal"></ul>
+  </div>
+
+  <!-- 8. Réglages -->
   <div class="carte">
     <details id="reglages">
       <summary>Réglages</summary>
@@ -195,27 +266,8 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
       <input id="r-bj" type="text" inputmode="numeric" autocapitalize="off">
       <label for="r-sd">Sites de devoirs (un par ligne). Le temps passé dessus ne compte pas dans le quota, et reste permis quand le quota est fini.</label>
       <textarea id="r-sd" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
-      <div class="rang"><button type="button" id="b-regl" class="bonus">Enregistrer</button></div>
+      <div class="rang"><button type="button" id="b-regl" class="second">Enregistrer</button></div>
     </details>
-  </div>
-
-  <div class="carte">
-    <details id="activite">
-      <summary>Ce qu'il a fait</summary>
-      <div class="petit" style="margin-bottom:6px">Une photo par minute, gardée 7 jours. Touche une session pour voir ses photos.</div>
-      <div id="sessions"></div>
-      <div id="sessions-etat" class="petit centre"></div>
-    </details>
-  </div>
-
-  <div class="carte">
-    <h2>7 derniers jours</h2>
-    <div id="histo"></div>
-  </div>
-
-  <div class="carte">
-    <h2>Dernières actions</h2>
-    <ul id="journal" class="journal"></ul>
   </div>
 
   <div class="pied"><a href="#" id="changer">Changer de compte / clé</a></div>
@@ -240,8 +292,12 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
 (function(){
   "use strict";
 
+  var VERSION_PAGE = "2026-11-22.1";   // doit être identique au contenu de version-page.txt
   var CLE_STOCK = "gaspard-telecommande";
   var SITES_DEFAUT = "inversonslescm1.wordpress.com\nlinstit.com\nlogicieleducatif.fr\nsoutien67.fr\npadlet.com\ndocs.google.com/forms\ndrive.google.com\nles-fondamentaux.fr\nrunmarco.allcancode.com\necoledirecte.com";
+  var PAS = 5;                 // pas du compteur d'ajustement (minutes)
+  var DELAI_ENVOI = 2000;      // anti-rebond du compteur
+  var DEMO = /[?&]demo=1(?:&|#|$)/.test(String(location.search || ""));   // jamais d'écriture dans la vraie base, jamais de réseau
   var cfg = null;          // {u, k, who}
   var donnees = null;      // dernier état lu
   var enCours = false;
@@ -301,6 +357,7 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
   // stmts : [[sql, [args], optionnel], ...] ; retourne un tableau de tableaux de lignes (valeurs en texte).
   // Une requête marquée optionnelle (3e élément vrai) qui échoue (colonne ou table pas encore migrée) donne null au lieu d'une erreur.
   function sql(stmts){
+    if (DEMO) return demoSql(stmts);
     var reqs = stmts.map(function(s){
       return {type:"execute", stmt:{sql:s[0], args:(s[1] || []).map(arg)}};
     });
@@ -337,14 +394,25 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
     var h = Math.floor(m / 60), r = m % 60;
     return h + " h " + pad(r);
   }
+  function heureSure(d){ return (d && !isNaN(d.getTime())) ? heure(d) : "?"; }
+  function messageErreur(err){ return err && err.message ? err.message : "réseau"; }
   var JOURS = ["dim","lun","mar","mer","jeu","ven","sam"];
 
   // ---------- appli au premier plan
-  var NOMS_APPLI = {chrome:"Chrome", msedge:"Edge", firefox:"Firefox", winword:"Word", excel:"Excel", powerpnt:"PowerPoint", explorer:"Explorateur"};
+  var NOMS_APPLI = {chrome:"Chrome", msedge:"Edge", firefox:"Firefox", winword:"Word", excel:"Excel", powerpnt:"PowerPoint", explorer:"Explorateur", roblox:"Roblox", robloxplayerbeta:"Roblox", minecraft:"Minecraft", steam:"Steam", fortnite:"Fortnite", discord:"Discord"};
+  var ALERTE = /youtube|roblox|minecraft|fortnite|steam|brawl|clash|twitch|netflix|poki|crazygames|friv|miniclip|y8\.com/i;
   function nomAppli(brut){
     var b = String(brut || "").trim();
     var k = b.toLowerCase();
     return Object.prototype.hasOwnProperty.call(NOMS_APPLI, k) ? NOMS_APPLI[k] : b;
+  }
+  // Nom lisible : un site connu dans le titre ou l'adresse passe avant le nom du navigateur
+  function nomLisible(p){
+    var ctx = String(p.titre || "") + " " + String(p.url || "");
+    if (/youtube|youtu\.be/i.test(ctx)) return "YouTube";
+    if (/roblox/i.test(ctx)) return "Roblox";
+    if (/minecraft/i.test(ctx)) return "Minecraft";
+    return nomAppli(p.appli);
   }
   function ilYa(sec){
     sec = Math.max(0, Math.round(sec));
@@ -355,24 +423,17 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
   function infoAppli(p, maintenantMs){
     var le = p && p.appliLe ? new Date(p.appliLe) : null;
     if (!le || isNaN(le.getTime()) || (maintenantMs - le.getTime()) > 120000) return {etat:"eteint"};
-    var nom = nomAppli(p.appli);
+    var nom = nomLisible(p);
     if (!nom) return {etat:"verrouille"};
     var titre = String(p.titre || "");
-    return {etat:"appli", nom:nom, titre:titre, ago:ilYa((maintenantMs - le.getTime()) / 1000), alerte:/youtube/i.test(titre)};
+    var alerte = ALERTE.test(nom + " " + titre + " " + String(p.url || "")) && !p.devoirs;
+    return {etat:"appli", nom:nom, titre:titre, ago:ilYa((maintenantMs - le.getTime()) / 1000), alerte:alerte};
   }
 
-  // ---------- règle de décision (identique à celle du PC)
-  // Seul le quota du jour compte, a toute heure. Le bonus est plafonne comme sur le PC.
-  function decider(now, r, utilise, bonus, bloque){
-    if (bloque) return {ok:false, raison:"bloque", reste:0};
-    var dow = now.getDay(), we = (dow === 0 || dow === 6);
-    var quota = we ? r.qw : r.qs;
-    var b = Math.max(-quota, Math.min(bonus, r.bm));
-    var rq = quota + b - utilise;
-    if (rq <= 0) return {ok:false, raison:"quota", reste:0};
-    return {ok:true, raison:"", reste:rq};
-  }
-  // Lundi de la semaine de la date donnee (semaine du lundi au dimanche), au format AAAA-MM-JJ
+  // ---------- quotas et semaine
+  function quotaDuJour(now, r){ return (now.getDay() === 0 || now.getDay() === 6) ? r.qw : r.qs; }
+  // Bonus du jour tel que le PC le prend en compte : jamais sous -quota, jamais au-dessus du plafond
+  function bonusEffectif(bonus, quota, r){ return Math.max(-quota, Math.min(bonus, r.bm)); }
   function lundiDe(d){
     var dec = (d.getDay() + 6) % 7;
     return cleJour(new Date(d.getFullYear(), d.getMonth(), d.getDate() - dec));
@@ -391,7 +452,6 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
   function charger(){
     if (enCours || !cfg) return Promise.resolve();
     enCours = true;
-    var aujourdhui = cleJour(new Date());
     return sql([
       ["SELECT quota_semaine_min, quota_weekend_min, bonus_max_jour_min, bonus_jours_max_semaine FROM regles WHERE id=1"],
       ["SELECT bloque, bloque_par, bloque_le FROM etat WHERE id=1"],
@@ -399,7 +459,7 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
       ["SELECT date, minutes, bonus_min FROM jours ORDER BY date DESC LIMIT 14"],
       ["SELECT qui, quoi, quand FROM journal ORDER BY id DESC LIMIT 10"],
       // Nouveautés 1.5, optionnelles : la page marche aussi sur une base pas encore migrée
-      ["SELECT minutes_devoirs FROM jours WHERE date=?", [aujourdhui], true],
+      ["SELECT date, minutes_devoirs FROM jours ORDER BY date DESC LIMIT 14", [], true],
       ["SELECT url, devoirs FROM pc WHERE id=1", [], true],
       ["SELECT sites_devoirs FROM regles WHERE id=1", [], true]
     ]).then(function(res){
@@ -407,7 +467,8 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
       var e = res[1][0] || [];
       var p = res[2][0] || [];
       var jours = {};
-      res[3].forEach(function(l){ jours[l[0]] = {minutes:parseInt(l[1],10)||0, bonus:parseInt(l[2],10)||0}; });
+      res[3].forEach(function(l){ jours[l[0]] = {minutes:parseInt(l[1],10)||0, bonus:parseInt(l[2],10)||0, dev:0}; });
+      if (res[5]) res[5].forEach(function(l){ if (jours[l[0]]) jours[l[0]].dev = parseInt(l[1],10) || 0; });
       donnees = {
         regles:{
           qs:isNaN(parseInt(r[0],10)) ? 60 : parseInt(r[0],10),
@@ -417,18 +478,111 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
         },
         bloque: parseInt(e[0],10) === 1,
         bloquePar: e[1] || "", bloqueLe: e[2] || "",
-        pc:{vu:p[0] || null, session:parseInt(p[1],10) === 1, appli:p[4] || "", titre:p[5] || "", appliLe:p[6] || ""},
+        pc:{vu:p[0] || null, session:parseInt(p[1],10) === 1, appli:p[4] || "", titre:p[5] || "", appliLe:p[6] || "", url:"", devoirs:false},
         jours:jours,
         journal:res[4],
-        devoirsMin: (res[5] && res[5][0] && parseInt(res[5][0][0],10)) || 0,
-        pcDevoirs: !!(res[6] && res[6][0] && parseInt(res[6][0][1],10) === 1),
         sites: (res[7] && res[7][0]) ? String(res[7][0][0] === null ? SITES_DEFAUT : res[7][0][0]) : null   // null = colonne absente ; valeur NULL = liste par défaut de l'agent
       };
-      donnees.pc.devoirs = donnees.pcDevoirs;
+      var jr0 = jours[cleJour(new Date())];
+      donnees.devoirsMin = jr0 ? jr0.dev : 0;
+      if (res[6] && res[6][0]){
+        donnees.pc.url = res[6][0][0] || "";
+        donnees.pc.devoirs = parseInt(res[6][0][1],10) === 1;
+      }
       afficher();
     }).catch(function(err){
-      message("Connexion impossible : " + (err && err.message ? err.message : "réseau"));
+      message("Connexion impossible : " + messageErreur(err));
     }).then(function(){ enCours = false; });
+  }
+
+  // ---------- compteur d'ajustement
+  var adj = {val:null, base:null, timer:null, envoi:false, etat:"", tEtat:null};
+
+  // Contexte du jour : quota, plafond, bonus en base, jours de bonus déjà pris cette semaine
+  function ctxAdj(){
+    var now = new Date();
+    var r = donnees.regles;
+    var q = quotaDuJour(now, r);
+    var jr = donnees.jours[cleJour(now)] || {minutes:0, bonus:0, dev:0};
+    var bb = bonusEffectif(jr.bonus, q, r);
+    return {q:q, bm:r.bm, bj:r.bj, max:q + r.bm, baseBonus:jr.bonus, base:q + bb, joursSem:joursBonusSemaine(donnees.jours, now)};
+  }
+  function plusInfo(c, v){
+    if (v >= c.max) return {ok:false, raison: c.bm > 0 ? "Maximum du jour : +" + c.bm + " min" : "Pas de bonus possible"};
+    var cible = Math.min(c.max, v + PAS);
+    // Passer au-dessus du quota = un jour de bonus de plus. Remonter vers le quota n'est jamais bloqué.
+    if (c.baseBonus <= 0 && c.joursSem >= c.bj && cible > c.q){
+      if (v >= c.q){
+        return {ok:false, raison: c.bj > 0 ? c.bj + (c.bj > 1 ? " jours" : " jour") + " de bonus déjà pris cette semaine" : "Aucun jour de bonus cette semaine"};
+      }
+      cible = c.q;
+    }
+    return {ok:true, cible:cible};
+  }
+  function moinsInfo(c, v){
+    if (v <= 0) return {ok:false, raison:""};
+    return {ok:true, cible:Math.max(0, v - PAS)};
+  }
+  function afficherAdj(){
+    if (!donnees) return;
+    var c = ctxAdj();
+    if (adj.val === null || (adj.timer === null && !adj.envoi)){ adj.val = c.base; adj.base = c.base; }
+    var v = adj.val;
+    var pl = plusInfo(c, v), mo = moinsInfo(c, v);
+    $("adj-val").textContent = dur(v);
+    $("adj-normal").textContent = "normal : " + c.q + " min";
+    $("b-plus").disabled = !pl.ok;
+    $("b-moins").disabled = !mo.ok;
+    $("adj-raison").textContent = pl.ok ? "" : pl.raison;
+    $("adj-etat").textContent = adj.etat;
+  }
+  function etatAdj(txt, dureeMs){
+    adj.etat = txt;
+    clearTimeout(adj.tEtat);
+    if (dureeMs) adj.tEtat = setTimeout(function(){ adj.etat = ""; $("adj-etat").textContent = ""; }, dureeMs);
+    $("adj-etat").textContent = txt;
+  }
+  function ajuster(sens){
+    if (!cfg || !donnees) return;
+    var c = ctxAdj();
+    if (adj.val === null) afficherAdj();
+    var inf = sens > 0 ? plusInfo(c, adj.val) : moinsInfo(c, adj.val);
+    if (!inf.ok) return;
+    adj.val = inf.cible;
+    etatAdj("envoi…");
+    clearTimeout(adj.timer);
+    adj.timer = setTimeout(envoyerAdj, DELAI_ENVOI);   // avant l'affichage : une valeur en attente n'est jamais écrasée
+    afficherAdj();
+  }
+  function envoyerAdj(){
+    adj.timer = null;
+    if (!donnees) return;
+    var c = ctxAdj();
+    var v = adj.val, avant = adj.base;
+    if (v === avant){ etatAdj(""); afficherAdj(); return; }
+    var cle = cleJour(new Date());
+    var bonusNouveau = v - c.q;
+    adj.envoi = true;
+    sql([
+      ["INSERT INTO jours(date, minutes, bonus_min) VALUES(?, 0, ?) ON CONFLICT(date) DO UPDATE SET bonus_min = ?", [cle, bonusNouveau, bonusNouveau]],
+      ["INSERT INTO journal(qui, quoi, quand) VALUES(?, ?, ?)", [cfg.who, avant + " → " + v + " min", isoNow()]]
+    ]).then(function(){
+      adj.envoi = false;
+      adj.base = v;
+      if (donnees.jours[cle]) donnees.jours[cle].bonus = bonusNouveau;
+      else donnees.jours[cle] = {minutes:0, bonus:bonusNouveau, dev:0};
+      etatAdj("Envoyé, effet sur le PC sous 20 s", 15000);
+      afficherAdj();
+      enCours = false;
+      return charger();
+    }).catch(function(err){
+      adj.envoi = false;
+      clearTimeout(adj.timer); adj.timer = null;
+      adj.val = adj.base;
+      etatAdj("Pas envoyé (" + messageErreur(err) + "). Valeur remise à " + dur(adj.base) + ".");
+      afficherAdj();
+      message("Échec : " + messageErreur(err));
+    });
   }
 
   // ---------- affichage
@@ -436,49 +590,41 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
     if (!donnees) return;
     var now = new Date();
     var cle = cleJour(now);
-    var jr = donnees.jours[cle] || {minutes:0, bonus:0};
-    var utilise = jr.minutes;
-    // le PC ecrit les minutes avec jusqu'a 1 minute de retard : on prend le plus recent
-    $("utilise").textContent = dur(utilise);
-    var d = decider(now, donnees.regles, utilise, jr.bonus, donnees.bloque);
-    $("reste").textContent = d.ok ? dur(d.reste) : "0 min";
-    var st = $("statut");
-    st.className = "statut " + (d.ok ? "s-ok" : "s-ko");
-    var quotaBase = (now.getDay() === 0 || now.getDay() === 6) ? donnees.regles.qw : donnees.regles.qs;
-    var bonusJour = Math.max(-quotaBase, Math.min(jr.bonus, donnees.regles.bm));
-    if (bonusJour < 0) $("bonus-jour").textContent = "Aujourd'hui : " + quotaBase + " min − " + (-bonusJour) + " = " + (quotaBase + bonusJour) + " min de loisirs";
-    else $("bonus-jour").textContent = "Bonus aujourd'hui : " + bonusJour + "/" + donnees.regles.bm + " min";
-    $("bonus-semaine").textContent = "Jours de bonus cette semaine : " + joursBonusSemaine(donnees.jours, now) + "/" + donnees.regles.bj;
-    if (d.ok) st.textContent = "Autorisé";
-    else if (d.raison === "bloque") st.textContent = "Bloqué" + (donnees.bloquePar ? " par " + donnees.bloquePar : "");
-    else st.textContent = "Loisirs finis, devoirs permis";
+    var jr = donnees.jours[cle] || {minutes:0, bonus:0, dev:0};
+    var q = quotaDuJour(now, donnees.regles);
+    var total = Math.max(0, q + bonusEffectif(jr.bonus, q, donnees.regles));
+    var reste = Math.max(0, total - jr.minutes);
 
-    // Loisirs : utilisé / quota du jour (bonus compris). Devoirs : minutes du jour, hors quota.
-    var quotaJour = quotaBase + bonusJour;
-    $("t-loisirs").textContent = "Loisirs : " + utilise + " / " + quotaJour + " min";
-    $("t-devoirs").textContent = "Devoirs : " + dur(donnees.devoirsMin);
+    // 1. compteurs
+    $("reste").textContent = dur(reste);
+    $("utilise").textContent = jr.minutes + " / " + total + " min utilisées";
+    $("tuile-loisirs").className = "tuile " + (reste <= 0 ? "fini" : (reste < 5 ? "alerte" : "ok"));
+    $("t-devoirs").textContent = dur(donnees.devoirsMin);
+    $("qui-moi").textContent = cfg && cfg.who ? cfg.who : "";
 
     // état du PC
     var vu = donnees.pc.vu ? new Date(donnees.pc.vu) : null;
     var enLigne = vu && !isNaN(vu.getTime()) && (now - vu) < 120000;
     $("point").className = "point" + (enLigne ? " on" : "");
-    if (enLigne){
-      $("pc").innerHTML = "";
-      var b = document.createElement("b");
-      b.textContent = donnees.pc.session ? "PC allumé, Gaspard connecté" : "PC allumé, session fermée ou verrouillée";
-      $("pc").appendChild(b);
-    } else if (vu && !isNaN(vu.getTime())){
-      $("pc").textContent = "PC éteint ou hors ligne depuis " + heure(vu);
-    } else {
-      $("pc").textContent = "PC jamais vu pour l'instant";
-    }
-
+    if (enLigne) $("pc").textContent = "PC allumé";
+    else if (vu && !isNaN(vu.getTime())) $("pc").textContent = "PC éteint depuis " + heure(vu);
+    else $("pc").textContent = "PC jamais vu pour l'instant";
     afficherAppli();
 
+    // 2. ajustement
+    afficherAdj();
+
+    // 3. blocage
     $("b-bloquer").classList.toggle("cache", donnees.bloque);
     $("b-debloquer").classList.toggle("cache", !donnees.bloque);
+    var bc = $("bloc-carte");
+    bc.classList.toggle("cache", !donnees.bloque);
+    if (donnees.bloque){
+      var bl = donnees.bloqueLe ? new Date(donnees.bloqueLe) : null;
+      bc.textContent = "Bloqué" + (donnees.bloquePar ? " par " + donnees.bloquePar : "") + (bl && !isNaN(bl.getTime()) ? " à " + heure(bl) : "");
+    }
 
-    // réglages (on ne les écrase pas pendant la saisie)
+    // 8. réglages (on ne les écrase pas pendant la saisie)
     if (!$("reglages").open){
       $("r-qs").value = fmtSaisie(donnees.regles.qs);
       $("r-qw").value = fmtSaisie(donnees.regles.qw);
@@ -488,34 +634,36 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
       $("r-sd").disabled = donnees.sites === null;
     }
 
-    // historique 7 jours
+    // 6. historique 7 jours : loisirs (avec le total autorisé) et devoirs
     var h = $("histo");
     h.innerHTML = "";
-    var maxV = 30;
-    var lignes = [];
+    var maxV = 30, lignes = [];
     for (var i = 6; i >= 0; i--){
       var dd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      var k = cleJour(dd);
-      var j = donnees.jours[k] || {minutes:0, bonus:0};
-      var we = (dd.getDay() === 0 || dd.getDay() === 6);
-      var q = Math.max(0, (we ? donnees.regles.qw : donnees.regles.qs) + j.bonus);
-      lignes.push({dd:dd, m:j.minutes, q:q});
-      maxV = Math.max(maxV, j.minutes, q);
+      var j = donnees.jours[cleJour(dd)] || {minutes:0, bonus:0, dev:0};
+      var qq = quotaDuJour(dd, donnees.regles);
+      var aut = Math.max(0, qq + bonusEffectif(j.bonus, qq, donnees.regles));
+      lignes.push({dd:dd, m:j.minutes, a:aut, dev:j.dev || 0});
+      maxV = Math.max(maxV, j.minutes, aut, j.dev || 0);
     }
     lignes.forEach(function(l){
-      var div = document.createElement("div"); div.className = "barre";
+      var div = document.createElement("div"); div.className = "jour";
       var a = document.createElement("span"); a.className = "j"; a.textContent = JOURS[l.dd.getDay()] + " " + l.dd.getDate();
-      var piste = document.createElement("span"); piste.className = "piste";
-      var rem = document.createElement("span"); rem.className = "rempli" + (l.m >= l.q ? " plein" : "");
-      rem.style.display = "block";
-      rem.style.width = Math.min(100, Math.round(l.m / maxV * 100)) + "%";
-      piste.appendChild(rem);
-      var v = document.createElement("span"); v.className = "v"; v.textContent = dur(l.m);
-      div.appendChild(a); div.appendChild(piste); div.appendChild(v);
+      var p1 = document.createElement("span"); p1.className = "piste";
+      var r1 = document.createElement("span"); r1.className = "rempli" + (l.m >= l.a ? " plein" : "");
+      r1.style.width = Math.min(100, Math.round(l.m / maxV * 100)) + "%";
+      p1.appendChild(r1);
+      var v1 = document.createElement("span"); v1.className = "v"; v1.textContent = l.m + " / " + l.a + " min";
+      var p2 = document.createElement("span"); p2.className = "piste";
+      var r2 = document.createElement("span"); r2.className = "rempli dev";
+      r2.style.width = Math.min(100, Math.round(l.dev / maxV * 100)) + "%";
+      p2.appendChild(r2);
+      var v2 = document.createElement("span"); v2.className = "v2"; v2.textContent = "devoirs " + l.dev + " min";
+      div.appendChild(a); div.appendChild(p1); div.appendChild(v1); div.appendChild(p2); div.appendChild(v2);
       h.appendChild(div);
     });
 
-    // journal
+    // 7. journal
     var ul = $("journal");
     ul.innerHTML = "";
     if (!donnees.journal.length){
@@ -524,8 +672,8 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
     }
     donnees.journal.forEach(function(l){
       var li = document.createElement("li");
-      var q = new Date(l[2]);
-      var quand = isNaN(q.getTime()) ? "" : ", " + (cleJour(q) === cle ? "" : pad(q.getDate()) + "/" + pad(q.getMonth()+1) + " ") + heure(q);
+      var q2 = new Date(l[2]);
+      var quand = isNaN(q2.getTime()) ? "" : ", " + (cleJour(q2) === cle ? "" : pad(q2.getDate()) + "/" + pad(q2.getMonth()+1) + " ") + heure(q2);
       li.textContent = (l[0] || "?") + " : " + (l[1] || "") + quand;
       ul.appendChild(li);
     });
@@ -537,13 +685,14 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
     var box = $("appli");
     var a = infoAppli(donnees.pc, Date.now());
     box.innerHTML = "";
+    if (a.etat === "eteint"){ box.className = "appli cache"; return; }
     box.className = "appli";
-    if (a.etat === "eteint" || a.etat === "verrouille"){
-      box.classList.add("eteint");
-      box.textContent = a.etat === "eteint" ? "PC éteint ou verrouillé" : "PC verrouillé ou personne connecté";
+    if (a.etat === "verrouille"){
+      box.textContent = "En ce moment : session verrouillée";
       return;
     }
-    if (a.alerte) box.classList.add("alerte");
+    if (donnees.pc.devoirs) box.classList.add("devoirs");
+    else if (a.alerte) box.classList.add("alerte");
     var l1 = document.createElement("div");
     l1.appendChild(document.createTextNode("En ce moment : "));
     var nom = document.createElement("span"); nom.className = "nom"; nom.textContent = a.nom;
@@ -557,16 +706,45 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
       var t = document.createElement("div"); t.className = "titre"; t.textContent = a.titre;
       box.appendChild(t);
     }
-    var ag = document.createElement("div"); ag.className = "ago"; ag.textContent = a.ago;
-    box.appendChild(ag);
   }
 
-  // ---------- photo de l'écran, à la demande
+  // ---------- Voir l'écran : dernière photo de la minute, renouvelée seule
+  // Toutes les 60 s (page visible), on lit seulement MAX(quand). L'image n'est téléchargée que si elle a changé.
+  var affiche = {ms:0};            // photo actuellement affichée (minute ou à la demande)
+  var photoMin = {max:null, cours:false};
   var photoEnCours = false;
   var DELAI_PHOTO = 90000, PAS_PHOTO = 4000;
-  function etatPhoto(txt){
-    $("photo-zone").classList.remove("cache");
-    $("photo-etat").textContent = txt;
+  function imgSrc(b){
+    b = String(b || "");
+    // jamais autre chose que du base64 dans src (la démo fabrique des images SVG, jamais le vrai code)
+    return /^[A-Za-z0-9+\/=]+$/.test(b) ? "data:image/" + (DEMO ? "svg+xml" : "jpeg") + ";base64," + b : "";
+  }
+  function etatPhoto(txt){ $("photo-etat").textContent = txt; }
+  function poserPhoto(src, quand, legende){
+    var d = new Date(quand);
+    var im = $("photo-img");
+    im.src = src;
+    im.classList.remove("cache");
+    $("photo-etat").textContent = "";
+    $("photo-heure").textContent = "Photo de " + heureSure(d) + (legende ? " · " + legende : "");
+    affiche.ms = isNaN(d.getTime()) ? Date.now() : d.getTime();
+  }
+  function verifierPhoto(){
+    if (!cfg || photoMin.cours || photoEnCours) return Promise.resolve();
+    photoMin.cours = true;
+    return sql([["SELECT MAX(quand) FROM photos", [], true]]).then(function(res){
+      var m = res[0] && res[0][0] && res[0][0][0];
+      if (!m || m === photoMin.max) return;
+      return sql([["SELECT quand, appli, titre, devoirs, image FROM photos ORDER BY quand DESC LIMIT 1"]]).then(function(r2){
+        var l = r2[0][0];
+        if (!l) return;
+        photoMin.max = l[0];
+        var d = new Date(l[0]);
+        var src = imgSrc(l[4]);
+        // une photo demandée à la main, plus récente, n'est pas écrasée par une photo de la minute plus ancienne
+        if (src && !isNaN(d.getTime()) && d.getTime() > affiche.ms) poserPhoto(src, l[0], nomLisible({appli:l[1], titre:l[2]}));
+      });
+    }).catch(function(){ /* silencieux : on réessaie à la minute suivante */ }).then(function(){ photoMin.cours = false; });
   }
   function finPhoto(){
     photoEnCours = false;
@@ -576,9 +754,7 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
     if (photoEnCours || !cfg) return;
     photoEnCours = true;
     $("b-photo").disabled = true;
-    $("photo-img").classList.add("cache");
     $("photo-img").classList.remove("agrandi");
-    $("photo-heure").textContent = "";
     etatPhoto("Photo en cours (jusqu'à 30 s)…");
     var avant = "";
     // On compare à l'heure de la photo précédente (et non à l'horloge du téléphone, qui peut différer de celle du PC)
@@ -604,7 +780,7 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
         }, PAS_PHOTO);
       })();
     }).catch(function(err){
-      etatPhoto("Échec : " + (err && err.message ? err.message : "réseau"));
+      etatPhoto("Échec : " + messageErreur(err));
       finPhoto();
     });
   }
@@ -616,21 +792,16 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
   }
   function montrerPhoto(quand){
     return sql([["SELECT image FROM capture WHERE id=1"]]).then(function(res){
-      var img = (res[0][0] && res[0][0][0]) || "";
-      var d = new Date(quand);
-      if (!img){
+      var src = imgSrc((res[0][0] && res[0][0][0]) || "");
+      if (!src){
         etatPhoto("PC verrouillé, pas de photo");
         finPhoto();
         return;
       }
-      $("photo-etat").textContent = "";
-      var im = $("photo-img");
-      im.src = "data:image/jpeg;base64," + img;
-      im.classList.remove("cache");
-      $("photo-heure").textContent = "Photo de " + (isNaN(d.getTime()) ? "" : heure(d));
+      poserPhoto(src, quand, "à la demande");
       finPhoto();
     }).catch(function(err){
-      etatPhoto("Échec : " + (err && err.message ? err.message : "réseau"));
+      etatPhoto("Échec : " + messageErreur(err));
       finPhoto();
     });
   }
@@ -641,13 +812,6 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
   var PAQUET = 12;
   var act = {sessions:[], ouverte:null, photos:[], reste:false, panel:null, grille:null, plus:null, etat:null, enCours:false, chargePhotos:false};
   var visuIdx = -1;
-
-  function imgSrc(b){
-    b = String(b || "");
-    return /^[A-Za-z0-9+\/=]+$/.test(b) ? "data:image/jpeg;base64," + b : "";   // jamais autre chose que du base64 dans src
-  }
-  function heureSure(d){ return (d && !isNaN(d.getTime())) ? heure(d) : "?"; }
-  function messageErreur(err){ return err && err.message ? err.message : "réseau"; }
 
   function chargerSessions(){
     if (act.enCours || !cfg) return Promise.resolve();
@@ -698,7 +862,7 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
     var p = document.createElement("div");
     act.grille = document.createElement("div"); act.grille.className = "grille";
     act.etat = document.createElement("div"); act.etat.className = "petit centre";
-    act.plus = document.createElement("button"); act.plus.setAttribute("type", "button"); act.plus.className = "bonus cache"; act.plus.textContent = "Plus";
+    act.plus = document.createElement("button"); act.plus.setAttribute("type", "button"); act.plus.className = "second cache"; act.plus.textContent = "Plus";
     act.plus.onclick = function(){ chargerPhotos(); };
     p.appendChild(act.grille); p.appendChild(act.etat); p.appendChild(act.plus);
     act.panel = p;
@@ -792,11 +956,11 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
   function action(stmts, texteJournal, confirmation){
     stmts.push(["INSERT INTO journal(qui, quoi, quand) VALUES(?, ?, ?)", [cfg.who, texteJournal, isoNow()]]);
     return sql(stmts).then(function(){
-      message(confirmation || "C'est fait. Effet sur le PC sous 1 minute.");
+      message(confirmation || "C'est fait. Effet sur le PC sous 20 s.");
       enCours = false;
       return charger();
     }).catch(function(err){
-      message("Échec : " + (err && err.message ? err.message : "réseau"));
+      message("Échec : " + messageErreur(err));
     });
   }
 
@@ -805,46 +969,6 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
   }
   function debloquer(){
     action([["UPDATE etat SET bloque=0, bloque_par=?, bloque_le=? WHERE id=1", [cfg.who, isoNow()]]], "Débloqué");
-  }
-  function bonus(n){
-    var now = new Date();
-    var cle = cleJour(now);
-    // Relecture fraîche des plafonds et des jours de bonus avant d'accepter l'ajout
-    sql([
-      ["SELECT bonus_max_jour_min, bonus_jours_max_semaine, quota_semaine_min, quota_weekend_min FROM regles WHERE id=1"],
-      ["SELECT date, minutes, bonus_min FROM jours ORDER BY date DESC LIMIT 14"]
-    ]).then(function(res){
-      var r = res[0][0] || [];
-      var bm = isNaN(parseInt(r[0],10)) ? 20 : parseInt(r[0],10);
-      var bj = isNaN(parseInt(r[1],10)) ? 2 : parseInt(r[1],10);
-      var qs = isNaN(parseInt(r[2],10)) ? 60 : parseInt(r[2],10);
-      var qw = isNaN(parseInt(r[3],10)) ? 60 : parseInt(r[3],10);
-      var quota = (now.getDay() === 0 || now.getDay() === 6) ? qw : qs;
-      var jours = {};
-      res[1].forEach(function(l){ jours[l[0]] = {minutes:parseInt(l[1],10)||0, bonus:parseInt(l[2],10)||0}; });
-      var deja = jours[cle] ? jours[cle].bonus : 0;
-      if (n < 0){
-        // Retrait : jamais sous -quota du jour (loisirs jamais négatifs), les plafonds d'ajout ne s'appliquent pas
-        if (deja <= -quota){
-          message("Rien à enlever : il ne reste déjà plus de loisirs aujourd'hui.");
-          return;
-        }
-        return action([["INSERT INTO jours(date, minutes, bonus_min) VALUES(?, 0, ?) ON CONFLICT(date) DO UPDATE SET bonus_min = MAX(?, bonus_min + ?)", [cle, Math.max(-quota, n), -quota, n]]], "−" + (-n) + " min");
-      }
-      // Ajout : les plafonds ne comptent que ce qui dépasse 0 (remonter vers 0 n'est jamais refusé)
-      if (deja + n > bm){
-        message("Refusé : le bonus d'un jour est limité à " + bm + " min (déjà " + deja + " aujourd'hui).");
-        return;
-      }
-      if (deja <= 0 && deja + n > 0 && joursBonusSemaine(jours, now) >= bj){
-        message("Refusé : déjà " + bj + " jours de bonus cette semaine.");
-        return;
-      }
-      // bonus_min du jour = bonus + n ; ne touche jamais aux minutes (écrites par le PC)
-      return action([["INSERT INTO jours(date, minutes, bonus_min) VALUES(?, 0, ?) ON CONFLICT(date) DO UPDATE SET bonus_min = bonus_min + ?", [cle, n, n]]], "+" + n + " min");
-    }).catch(function(err){
-      message("Échec : " + (err && err.message ? err.message : "réseau"));
-    });
   }
   function enregistrerReglages(){
     var qs = parseDuree($("r-qs").value), qw = parseDuree($("r-qw").value);
@@ -868,6 +992,89 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
     return String(t || "").split(/[\r\n]+/).map(function(x){ return x.trim(); }).filter(function(x){ return x.length > 0; }).join("\n");
   }
 
+  // ---------- mise à jour de la page : si version-page.txt change, on recharge (le fragment #u=...&k=... est conservé)
+  function verifierVersion(){
+    if (DEMO) return;
+    try {
+      fetch("version-page.txt?t=" + Date.now(), {cache:"no-store"}).then(function(r){
+        if (!r.ok) throw new Error("absent");
+        return r.text();
+      }).then(function(t){
+        t = String(t || "").trim();
+        if (t && t.charAt(0) !== "<" && t !== VERSION_PAGE) location.reload();
+      }).catch(function(){});
+    } catch(e){}
+  }
+
+  // ---------- mode démonstration (?demo=1) : base fictive en mémoire, aucun réseau
+  var demoEtat = null;
+  function demoSvg(titre, couleur){
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">' +
+      '<rect width="640" height="400" fill="#202124"/><rect width="640" height="34" fill="#35363a"/>' +
+      '<circle cx="18" cy="17" r="6" fill="#ff5f56"/><circle cx="38" cy="17" r="6" fill="#ffbd2e"/><circle cx="58" cy="17" r="6" fill="#27c93f"/>' +
+      '<rect x="90" y="8" width="360" height="18" rx="9" fill="#4a4b50"/>' +
+      '<rect x="40" y="60" width="400" height="225" rx="6" fill="' + couleur + '"/>' +
+      '<polygon points="210,125 210,220 290,172" fill="#fff" fill-opacity=".85"/>' +
+      '<rect x="40" y="300" width="300" height="14" rx="4" fill="#e8e8e8"/><rect x="40" y="324" width="190" height="10" rx="4" fill="#9a9a9a"/>' +
+      '<rect x="470" y="60" width="140" height="70" rx="6" fill="#3a3b40"/><rect x="470" y="140" width="140" height="70" rx="6" fill="#3a3b40"/><rect x="470" y="220" width="140" height="70" rx="6" fill="#3a3b40"/>' +
+      '</svg>';
+    try { return btoa(s); } catch(e){ return "QUJD"; }
+  }
+  function demoIni(){
+    var now = new Date();
+    var ago = function(ms){ return new Date(Date.now() - ms).toISOString().replace(/\.\d+Z$/, "Z"); };
+    var jours = {}, mins = [22, 20, 20, 17, 25, 20, 14], devs = [0, 30, 45, 20, 0, 15, 25], bon = [0, 0, 10, 0, 0, 0, 0];
+    for (var i = 6; i >= 0; i--){
+      var dd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      jours[cleJour(dd)] = {minutes:mins[6 - i], bonus:bon[6 - i], dev:devs[6 - i]};
+    }
+    demoEtat = {
+      regles:[20, 20, 20, 2], bloque:0, jours:jours,
+      journal:[["Benoît", "15 → 20 min", ago(2 * 3600000)], ["Émilie", "Photo demandée", ago(5 * 3600000)], ["Benoît", "Débloqué", ago(26 * 3600000)]],
+      vu:ago(10000), appli:"chrome", titre:"Chats rigolos, compilation - YouTube - Google Chrome", url:"youtube.com/watch", devoirs:0, appli_le:ago(15000),
+      imgs:[demoSvg("a", "#b3261e"), demoSvg("b", "#1a73e8"), demoSvg("c", "#188038")]
+    };
+  }
+  function demoSql(stmts){
+    if (!demoEtat) demoIni();
+    var E = demoEtat, out = [];
+    stmts.forEach(function(s){
+      var q = s[0], a = s[1] || [];
+      if (/^INSERT INTO jours/.test(q)){
+        var c = cleJour(new Date());
+        E.jours[c] = E.jours[c] || {minutes:0, bonus:0, dev:0};
+        E.jours[c].bonus = a[1];
+        out.push([]);
+      } else if (/^INSERT INTO journal/.test(q)){ E.journal.unshift([a[0], a[1], a[2]]); out.push([]); }
+      else if (/^UPDATE etat SET bloque=1/.test(q)){ E.bloque = 1; E.bloquePar = a[0]; E.bloqueLe = a[1]; out.push([]); }
+      else if (/^UPDATE etat SET bloque=0/.test(q)){ E.bloque = 0; out.push([]); }
+      else if (/FROM regles WHERE id=1/.test(q) && /sites_devoirs/.test(q)) out.push([["padlet.com\nlinstit.com\necoledirecte.com"]]);
+      else if (/FROM regles WHERE id=1/.test(q)) out.push([E.regles.slice()]);
+      else if (/FROM etat/.test(q)) out.push([[E.bloque, E.bloquePar || null, E.bloqueLe || null]]);
+      else if (/SELECT url, devoirs FROM pc/.test(q)) out.push([[E.url, E.devoirs]]);
+      else if (/FROM pc/.test(q)) out.push([[E.vu, 1, "1.6", 14, E.appli, E.titre, E.appli_le]]);
+      else if (/SELECT date, minutes_devoirs FROM jours/.test(q)) out.push(Object.keys(E.jours).sort().reverse().map(function(k){ return [k, E.jours[k].dev]; }));
+      else if (/SELECT date, minutes, bonus_min FROM jours/.test(q)) out.push(Object.keys(E.jours).sort().reverse().map(function(k){ return [k, E.jours[k].minutes, E.jours[k].bonus]; }));
+      else if (/FROM journal/.test(q)) out.push(E.journal.slice(0, 10));
+      else if (/MAX\(quand\) FROM photos/.test(q)) out.push([[new Date(Date.now() - 20000).toISOString().replace(/\.\d+Z$/, "Z")]]);
+      else if (/FROM photos ORDER BY quand DESC LIMIT 1/.test(q)) out.push([[new Date(Date.now() - 20000).toISOString().replace(/\.\d+Z$/, "Z"), "chrome", "Chats rigolos - YouTube", 0, E.imgs[0]]]);
+      else if (/GROUP BY session/.test(q)){
+        var n = Date.now();
+        var f = function(ms){ return new Date(n - ms).toISOString().replace(/\.\d+Z$/, "Z"); };
+        out.push([["S3", f(3 * 3600000), f(2.2 * 3600000), 48, 18], ["S2", f(27 * 3600000), f(26 * 3600000), 40, 35], ["S1", f(51 * 3600000), f(50 * 3600000), 20, 0]]);
+      }
+      else if (/FROM photos WHERE session/.test(q)){
+        var rows = [];
+        for (var i = 0; i < 9; i++) rows.push([i + 1, new Date(Date.now() - (3600000 - i * 60000)).toISOString().replace(/\.\d+Z$/, "Z"), i < 3 ? "msedge" : "chrome", "Fenêtre " + (i + 1), "", i < 3 ? 1 : 0, E.imgs[i % 3]]);
+        out.push(rows);
+      }
+      else if (/SELECT image FROM capture/.test(q)) out.push([[E.imgs[1]]]);
+      else if (/SELECT quand FROM capture/.test(q)) out.push([[new Date().toISOString().replace(/\.\d+Z$/, "Z")]]);
+      else out.push([]);
+    });
+    return Promise.resolve(out);
+  }
+
   // ---------- écrans
   function montrerAccueil(pre){
     $("principal").classList.add("cache");
@@ -886,7 +1093,9 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
   function montrerPrincipal(){
     $("accueil").classList.add("cache");
     $("principal").classList.remove("cache");
+    if (DEMO) $("demo-bandeau").classList.remove("cache");
     charger();
+    verifierPhoto();
     clearInterval(minuteur);
     minuteur = setInterval(function(){ if (!document.hidden) charger(); }, 20000);
   }
@@ -906,8 +1115,14 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
     $("b-debloquer").onclick = debloquer;
     $("b-regl").onclick = enregistrerReglages;
     $("b-photo").onclick = voirEcran;
+    $("b-moins").onclick = function(){ ajuster(-1); };
+    $("b-plus").onclick = function(){ ajuster(1); };
     $("photo-img").onclick = function(){ this.classList.toggle("agrandi"); };
-    setInterval(function(){ if (!document.hidden) afficherAppli(); }, 5000); // fait avancer « il y a N s »
+    setInterval(function(){ if (!document.hidden) afficherAppli(); }, 5000);
+    // Photo de la minute : on ne regarde que le MAX(quand), l'image n'est téléchargée que si elle a changé ; rien quand la page est cachée
+    setInterval(function(){ if (!document.hidden) verifierPhoto(); }, 60000);
+    // Mise à jour de la page : toutes les 5 min et au retour au premier plan
+    setInterval(verifierVersion, 300000);
 
     // Ce qu'il a fait : liste lue à l'ouverture de la section puis toutes les 60 s ; jamais d'image dans ce rafraîchissement
     $("activite").addEventListener("toggle", function(){
@@ -936,19 +1151,26 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
       else if (e.key === "ArrowRight") suivante();
       else if (e.key === "Escape") fermerVisu();
     });
-    var bs = document.querySelectorAll("[data-bonus]");
-    for (var i = 0; i < bs.length; i++){
-      (function(b){ b.onclick = function(){ bonus(parseInt(b.getAttribute("data-bonus"), 10)); }; })(bs[i]);
-    }
     $("changer").onclick = function(e){
       e.preventDefault();
+      if (DEMO) return;
       if (!confirm("Changer de compte ou de clé ?")) return;
       var ancien = cfg;
       effacer(); clearInterval(minuteur); cfg = null; donnees = null;
       montrerAccueil(ancien ? {u:ancien.u, who:ancien.who} : null);
     };
-    document.addEventListener("visibilitychange", function(){ if (!document.hidden && cfg) charger(); });
+    document.addEventListener("visibilitychange", function(){
+      if (document.hidden) return;
+      verifierVersion();
+      if (cfg){ charger(); verifierPhoto(); }
+    });
 
+    if (DEMO){
+      cfg = {u:"demo", k:"demo", who:"Benoît"};   // jamais écrit dans le stockage, jamais envoyé
+      montrerPrincipal();
+      return;
+    }
+    verifierVersion();
     var stocke = lire();
     var frag = lireFragment();
     if (frag){
