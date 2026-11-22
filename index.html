@@ -92,6 +92,32 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
 #photo-img{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--ligne);cursor:zoom-in}
 #photo-img.agrandi{position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#000;border:0;border-radius:0;z-index:20;cursor:zoom-out}
 #photo-heure{font-size:13px;color:var(--doux);text-align:center;margin-top:4px}
+.temps{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:16px;font-weight:650}
+.temps .dev{color:var(--vert)}
+.badge{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:var(--vert-f);color:var(--vert);font-size:12px;font-weight:700;vertical-align:middle}
+textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius:12px;padding:10px 12px;background:var(--fond);resize:vertical;font:inherit;font-size:15px;line-height:1.4}
+.sess{border-top:1px solid var(--ligne)}
+.sess:first-child{border-top:0}
+.sess > button{display:block;width:100%;min-height:56px;text-align:left;border:0;border-radius:0;background:transparent;padding:10px 2px;font-weight:500}
+.sess .s1{font-weight:650}
+.sess .s2{font-size:14px;color:var(--doux);margin-top:2px}
+.sess.ouverte > button .s1::after{content:" \25B4";color:var(--doux)}
+.sess:not(.ouverte) > button .s1::after{content:" \25BE";color:var(--doux)}
+.grille{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 12px}
+.vign{position:relative;padding:0;min-height:0;min-width:0;aspect-ratio:16/10;overflow:hidden;border-radius:10px;border:1px solid var(--ligne);background:#000}
+.vign img{display:block;width:100%;height:100%;object-fit:cover}
+.vign .h,.vign .a{position:absolute;left:0;right:0;padding:2px 5px;font-size:11px;font-weight:650;color:#fff;background:rgba(0,0,0,.55);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vign .h{top:0}
+.vign .a{bottom:0}
+.vign .dv{position:absolute;top:2px;right:3px;padding:0 6px;border-radius:999px;background:var(--vert);color:#10151a;font-size:10px;font-weight:800}
+#visu{position:fixed;inset:0;z-index:30;background:#000;display:flex;flex-direction:column;touch-action:pan-y}
+#visu .haut{display:flex;align-items:center;gap:8px;padding:max(10px,env(safe-area-inset-top)) 12px 8px;color:#fff;font-size:15px}
+#visu .haut .leg2{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#visu .haut .dv{padding:1px 8px;border-radius:999px;background:var(--vert);color:#10151a;font-size:12px;font-weight:800}
+#visu img{flex:1;min-height:0;width:100%;object-fit:contain}
+#visu .bas{display:flex;gap:10px;padding:10px 12px max(14px,env(safe-area-inset-bottom))}
+#visu .bas button{flex:1;background:#222;border-color:#333;color:#fff;font-size:20px}
+#visu .titre2{padding:0 12px 4px;color:#bbb;font-size:12px;word-break:break-word;max-height:3.2em;overflow:hidden}
 </style>
 </head>
 <body>
@@ -120,9 +146,10 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
 
   <div class="carte centre">
     <div class="gros">
-      <div><div class="chiffre" id="utilise">...</div><div class="leg">utilisé aujourd'hui</div></div>
-      <div><div class="chiffre" id="reste">...</div><div class="leg">reste</div></div>
+      <div><div class="chiffre" id="utilise">...</div><div class="leg">loisirs utilisés</div></div>
+      <div><div class="chiffre" id="reste">...</div><div class="leg">loisirs restants</div></div>
     </div>
+    <div class="temps"><span id="t-loisirs">Loisirs : ...</span><span id="t-devoirs" class="dev">Devoirs : ...</span></div>
     <div id="statut" class="statut s-hp">Chargement</div>
     <div class="pc"><span id="point" class="point"></span><span id="pc">...</span></div>
     <div id="appli" class="appli cache"></div>
@@ -162,7 +189,18 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
       <input id="r-bm" type="text" inputmode="numeric" autocapitalize="off">
       <label for="r-bj">Jours de bonus maximum par semaine (lundi au dimanche)</label>
       <input id="r-bj" type="text" inputmode="numeric" autocapitalize="off">
+      <label for="r-sd">Sites de devoirs (un par ligne). Le temps passé dessus ne compte pas dans le quota, et reste permis quand le quota est fini.</label>
+      <textarea id="r-sd" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
       <div class="rang"><button type="button" id="b-regl" class="bonus">Enregistrer</button></div>
+    </details>
+  </div>
+
+  <div class="carte">
+    <details id="activite">
+      <summary>Ce qu'il a fait</summary>
+      <div class="petit" style="margin-bottom:6px">Une photo par minute, gardée 7 jours. Touche une session pour voir ses photos.</div>
+      <div id="sessions"></div>
+      <div id="sessions-etat" class="petit centre"></div>
     </details>
   </div>
 
@@ -179,6 +217,18 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
   <div class="pied"><a href="#" id="changer">Changer de compte / clé</a></div>
 </section>
 
+<!-- Visionneuse plein écran des photos d'une session -->
+<div id="visu" class="cache" role="dialog" aria-label="Photo de l'écran">
+  <div class="haut"><span id="visu-pos"></span><span id="visu-leg" class="leg2"></span><span id="visu-dv" class="dv cache">Devoirs</span></div>
+  <img id="visu-img" alt="Écran de Gaspard">
+  <div id="visu-titre" class="titre2"></div>
+  <div class="bas">
+    <button type="button" id="visu-prec" aria-label="Photo précédente">&#8249;</button>
+    <button type="button" id="visu-ferme">Fermer</button>
+    <button type="button" id="visu-suiv" aria-label="Photo suivante">&#8250;</button>
+  </div>
+</div>
+
 <div id="msg" class="cache" role="status"></div>
 </main>
 
@@ -187,6 +237,7 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
   "use strict";
 
   var CLE_STOCK = "gaspard-telecommande";
+  var SITES_DEFAUT = "inversonslescm1.wordpress.com\nlinstit.com\nlogicieleducatif.fr\nsoutien67.fr\npadlet.com\ndocs.google.com/forms\ndrive.google.com\nles-fondamentaux.fr\nrunmarco.allcancode.com\necoledirecte.com";
   var cfg = null;          // {u, k, who}
   var donnees = null;      // dernier état lu
   var enCours = false;
@@ -243,7 +294,8 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
     if (typeof v === "number") return {type:"integer", value:String(Math.round(v))};
     return {type:"text", value:String(v)};
   }
-  // stmts : [[sql, [args]], ...] ; retourne un tableau de tableaux de lignes (valeurs en texte)
+  // stmts : [[sql, [args], optionnel], ...] ; retourne un tableau de tableaux de lignes (valeurs en texte).
+  // Une requête marquée optionnelle (3e élément vrai) qui échoue (colonne ou table pas encore migrée) donne null au lieu d'une erreur.
   function sql(stmts){
     var reqs = stmts.map(function(s){
       return {type:"execute", stmt:{sql:s[0], args:(s[1] || []).map(arg)}};
@@ -260,6 +312,7 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
       var out = [];
       for (var i = 0; i < stmts.length; i++){
         var it = j.results[i];
+        if (stmts[i][2] && (!it || it.type !== "ok")){ out.push(null); continue; }
         if (!it || it.type !== "ok") throw new Error((it && it.error && it.error.message) || "Erreur de la base");
         out.push(it.response.result.rows.map(function(row){
           return row.map(function(c){ return c.type === "null" ? null : c.value; });
@@ -340,7 +393,11 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
       ["SELECT bloque, bloque_par, bloque_le FROM etat WHERE id=1"],
       ["SELECT vu_le, session_active, version, minutes_aujourdhui, appli, titre, appli_le FROM pc WHERE id=1"],
       ["SELECT date, minutes, bonus_min FROM jours ORDER BY date DESC LIMIT 14"],
-      ["SELECT qui, quoi, quand FROM journal ORDER BY id DESC LIMIT 10"]
+      ["SELECT qui, quoi, quand FROM journal ORDER BY id DESC LIMIT 10"],
+      // Nouveautés 1.5, optionnelles : la page marche aussi sur une base pas encore migrée
+      ["SELECT minutes_devoirs FROM jours WHERE date=?", [aujourdhui], true],
+      ["SELECT url, devoirs FROM pc WHERE id=1", [], true],
+      ["SELECT sites_devoirs FROM regles WHERE id=1", [], true]
     ]).then(function(res){
       var r = res[0][0] || [];
       var e = res[1][0] || [];
@@ -358,8 +415,12 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
         bloquePar: e[1] || "", bloqueLe: e[2] || "",
         pc:{vu:p[0] || null, session:parseInt(p[1],10) === 1, appli:p[4] || "", titre:p[5] || "", appliLe:p[6] || ""},
         jours:jours,
-        journal:res[4]
+        journal:res[4],
+        devoirsMin: (res[5] && res[5][0] && parseInt(res[5][0][0],10)) || 0,
+        pcDevoirs: !!(res[6] && res[6][0] && parseInt(res[6][0][1],10) === 1),
+        sites: (res[7] && res[7][0]) ? String(res[7][0][0] === null ? SITES_DEFAUT : res[7][0][0]) : null   // null = colonne absente ; valeur NULL = liste par défaut de l'agent
       };
+      donnees.pc.devoirs = donnees.pcDevoirs;
       afficher();
     }).catch(function(err){
       message("Connexion impossible : " + (err && err.message ? err.message : "réseau"));
@@ -383,7 +444,12 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
     $("bonus-semaine").textContent = "Jours de bonus cette semaine : " + joursBonusSemaine(donnees.jours, now) + "/" + donnees.regles.bj;
     if (d.ok) st.textContent = "Autorisé";
     else if (d.raison === "bloque") st.textContent = "Bloqué" + (donnees.bloquePar ? " par " + donnees.bloquePar : "");
-    else st.textContent = "Quota du jour atteint";
+    else st.textContent = "Loisirs finis, devoirs permis";
+
+    // Loisirs : utilisé / quota du jour (bonus compris). Devoirs : minutes du jour, hors quota.
+    var quotaJour = (now.getDay() === 0 || now.getDay() === 6 ? donnees.regles.qw : donnees.regles.qs) + Math.max(0, Math.min(jr.bonus, donnees.regles.bm));
+    $("t-loisirs").textContent = "Loisirs : " + utilise + " / " + quotaJour + " min";
+    $("t-devoirs").textContent = "Devoirs : " + dur(donnees.devoirsMin);
 
     // état du PC
     var vu = donnees.pc.vu ? new Date(donnees.pc.vu) : null;
@@ -411,6 +477,8 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
       $("r-qw").value = fmtSaisie(donnees.regles.qw);
       $("r-bm").value = String(donnees.regles.bm);
       $("r-bj").value = String(donnees.regles.bj);
+      $("r-sd").value = donnees.sites === null ? "" : donnees.sites;
+      $("r-sd").disabled = donnees.sites === null;
     }
 
     // historique 7 jours
@@ -473,6 +541,10 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
     l1.appendChild(document.createTextNode("En ce moment : "));
     var nom = document.createElement("span"); nom.className = "nom"; nom.textContent = a.nom;
     l1.appendChild(nom);
+    if (donnees.pc.devoirs){
+      var bd = document.createElement("span"); bd.className = "badge"; bd.textContent = "Devoirs";
+      l1.appendChild(bd);
+    }
     box.appendChild(l1);
     if (a.titre){
       var t = document.createElement("div"); t.className = "titre"; t.textContent = a.titre;
@@ -556,6 +628,147 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
     });
   }
 
+  // ---------- Ce qu'il a fait : sessions (7 jours) et photos de la minute
+  // Règles : le rafraîchissement automatique (20 s) ne touche JAMAIS aux photos. La liste des sessions se lit sans la colonne image,
+  // seulement quand la section est ouverte (toutes les 60 s). Les images d'une session ne sont lues que quand on la touche, par paquets.
+  var PAQUET = 12;
+  var act = {sessions:[], ouverte:null, photos:[], reste:false, panel:null, grille:null, plus:null, etat:null, enCours:false, chargePhotos:false};
+  var visuIdx = -1;
+
+  function imgSrc(b){
+    b = String(b || "");
+    return /^[A-Za-z0-9+\/=]+$/.test(b) ? "data:image/jpeg;base64," + b : "";   // jamais autre chose que du base64 dans src
+  }
+  function heureSure(d){ return (d && !isNaN(d.getTime())) ? heure(d) : "?"; }
+  function messageErreur(err){ return err && err.message ? err.message : "réseau"; }
+
+  function chargerSessions(){
+    if (act.enCours || !cfg) return Promise.resolve();
+    act.enCours = true;
+    var depuis = new Date(Date.now() - 7 * 86400000).toISOString().replace(/\.\d+Z$/, "Z");
+    return sql([["SELECT session, MIN(quand), MAX(quand), COUNT(*), COALESCE(SUM(devoirs), 0) FROM photos WHERE quand >= ? GROUP BY session ORDER BY MIN(quand) DESC", [depuis]]])
+    .then(function(res){
+      act.sessions = res[0].map(function(l){
+        return {id:l[0] || "", debut:new Date(l[1]), fin:new Date(l[2]), n:parseInt(l[3],10) || 0, dev:parseInt(l[4],10) || 0};
+      });
+      $("sessions-etat").textContent = act.sessions.length ? "" : "Aucune photo pour l'instant";
+      afficherSessions();
+    }).catch(function(err){
+      $("sessions-etat").textContent = "Indisponible : " + messageErreur(err);
+    }).then(function(){ act.enCours = false; });
+  }
+
+  function afficherSessions(){
+    var box = $("sessions");
+    box.innerHTML = "";
+    var auj = cleJour(new Date());
+    act.sessions.forEach(function(s){
+      var w = document.createElement("div");
+      w.className = "sess" + (s.id === act.ouverte ? " ouverte" : "");
+      var b = document.createElement("button");
+      b.setAttribute("type", "button");
+      var jourTxt = (!isNaN(s.debut.getTime()) && cleJour(s.debut) === auj) ? "Aujourd'hui" : (isNaN(s.debut.getTime()) ? "?" : JOURS[s.debut.getDay()] + " " + s.debut.getDate() + "/" + pad(s.debut.getMonth() + 1));
+      var l1 = document.createElement("div"); l1.className = "s1";
+      l1.textContent = jourTxt + ", " + heureSure(s.debut) + " à " + heureSure(s.fin);
+      var part = s.n > 0 ? Math.round(s.dev / s.n * 100) : 0;
+      var l2 = document.createElement("div"); l2.className = "s2";
+      l2.textContent = s.n + " min, devoirs " + s.dev + " min (" + part + " %)";
+      b.appendChild(l1); b.appendChild(l2);
+      b.onclick = function(){ basculerSession(s.id); };
+      w.appendChild(b);
+      if (s.id === act.ouverte && act.panel) w.appendChild(act.panel);
+      box.appendChild(w);
+    });
+  }
+
+  function basculerSession(id){
+    if (act.ouverte === id){
+      act.ouverte = null; act.panel = null; act.photos = []; act.reste = false;
+      afficherSessions();
+      return;
+    }
+    act.ouverte = id; act.photos = []; act.reste = false;
+    var p = document.createElement("div");
+    act.grille = document.createElement("div"); act.grille.className = "grille";
+    act.etat = document.createElement("div"); act.etat.className = "petit centre";
+    act.plus = document.createElement("button"); act.plus.setAttribute("type", "button"); act.plus.className = "bonus cache"; act.plus.textContent = "Plus";
+    act.plus.onclick = function(){ chargerPhotos(); };
+    p.appendChild(act.grille); p.appendChild(act.etat); p.appendChild(act.plus);
+    act.panel = p;
+    afficherSessions();
+    chargerPhotos();
+  }
+
+  // Charge le paquet suivant de la session ouverte (12 images à la fois, dans l'ordre de la journée)
+  function chargerPhotos(){
+    if (act.chargePhotos || !cfg || act.ouverte === null) return Promise.resolve();
+    var sid = act.ouverte;
+    var dernier = act.photos.length ? act.photos[act.photos.length - 1].id : 0;
+    act.chargePhotos = true;
+    act.etat.textContent = "Chargement…";
+    return sql([["SELECT id, quand, appli, titre, url, devoirs, image FROM photos WHERE session=? AND id>? ORDER BY id ASC LIMIT " + PAQUET, [sid, dernier]]])
+    .then(function(res){
+      if (act.ouverte !== sid) return;            // une autre session a été touchée entre-temps
+      var debut = act.photos.length;
+      res[0].forEach(function(r){
+        act.photos.push({id:parseInt(r[0],10), quand:new Date(r[1]), appli:r[2] || "", titre:r[3] || "", url:r[4] || "", devoirs:parseInt(r[5],10) === 1, src:imgSrc(r[6])});
+      });
+      act.reste = res[0].length === PAQUET;
+      for (var i = debut; i < act.photos.length; i++) act.grille.appendChild(vignette(i));
+      act.etat.textContent = act.photos.length ? "" : "Aucune photo";
+      act.plus.classList.toggle("cache", !act.reste);
+    }).catch(function(err){
+      if (act.ouverte === sid) act.etat.textContent = "Échec : " + messageErreur(err);
+    }).then(function(){ act.chargePhotos = false; });
+  }
+
+  function vignette(i){
+    var p = act.photos[i];
+    var b = document.createElement("button");
+    b.setAttribute("type", "button"); b.className = "vign";
+    var im = document.createElement("img"); im.setAttribute("alt", "Écran à " + heureSure(p.quand));
+    if (p.src) im.src = p.src;
+    var h = document.createElement("span"); h.className = "h"; h.textContent = heureSure(p.quand);
+    var a = document.createElement("span"); a.className = "a"; a.textContent = nomAppli(p.appli) || "?";
+    b.appendChild(im); b.appendChild(h); b.appendChild(a);
+    if (p.devoirs){
+      var dv = document.createElement("span"); dv.className = "dv"; dv.textContent = "Devoirs";
+      b.appendChild(dv);
+    }
+    b.onclick = function(){ ouvrirVisu(i); };
+    return b;
+  }
+
+  // Visionneuse plein écran : flèches, glisser, Échap
+  function ouvrirVisu(i){
+    visuIdx = i;
+    $("visu").classList.remove("cache");
+    montrerVisu();
+  }
+  function montrerVisu(){
+    var p = act.photos[visuIdx];
+    if (!p) return;
+    if (p.src) $("visu-img").src = p.src;
+    $("visu-pos").textContent = (visuIdx + 1) + " / " + act.photos.length + (act.reste ? "+" : "");
+    $("visu-leg").textContent = heureSure(p.quand) + " · " + (nomAppli(p.appli) || "?");
+    $("visu-dv").classList.toggle("cache", !p.devoirs);
+    $("visu-titre").textContent = p.titre + (p.url ? " | " + p.url : "");
+    $("visu-prec").disabled = visuIdx <= 0;
+    $("visu-suiv").disabled = visuIdx >= act.photos.length - 1 && !act.reste;
+  }
+  function precedente(){ if (visuIdx > 0){ visuIdx--; montrerVisu(); } }
+  function suivante(){
+    if (visuIdx < act.photos.length - 1){ visuIdx++; montrerVisu(); return; }
+    if (act.reste){
+      chargerPhotos().then(function(){ if (visuIdx >= 0 && visuIdx < act.photos.length - 1){ visuIdx++; montrerVisu(); } });
+    }
+  }
+  function fermerVisu(){
+    $("visu").classList.add("cache");
+    visuIdx = -1;
+  }
+  function visuOuverte(){ return visuIdx >= 0 && !$("visu").classList.contains("cache"); }
+
   function fmtSaisie(m){
     if (m % 60 === 0) return String(m);
     return Math.floor(m / 60) + ":" + pad(m % 60);
@@ -620,8 +833,20 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
     if (qs === null || qw === null){ message("Quota illisible. Exemple : 60 ou 1:00"); return; }
     if (bm === null){ message("Bonus maximum illisible. Exemple : 20"); return; }
     if (isNaN(bj) || bj < 0 || bj > 7){ message("Jours de bonus : un nombre de 0 à 7."); return; }
-    action([["UPDATE regles SET quota_semaine_min=?, quota_weekend_min=?, bonus_max_jour_min=?, bonus_jours_max_semaine=?, maj_le=? WHERE id=1", [qs, qw, bm, bj, isoNow()]]],
-      "Réglages modifiés").then(function(){ $("reglages").open = false; });
+    var stmts = [["UPDATE regles SET quota_semaine_min=?, quota_weekend_min=?, bonus_max_jour_min=?, bonus_jours_max_semaine=?, maj_le=? WHERE id=1", [qs, qw, bm, bj, isoNow()]]];
+    var texte = "Réglages modifiés";
+    // Sites de devoirs : une ligne par site, lignes vides ignorées. Écrit seulement si la liste a changé.
+    if (donnees && donnees.sites !== null){
+      var sites = normaliserSites($("r-sd").value);
+      if (sites !== normaliserSites(donnees.sites)){
+        stmts.push(["UPDATE regles SET sites_devoirs=?, maj_le=? WHERE id=1", [sites, isoNow()]]);
+        texte += " (sites de devoirs)";
+      }
+    }
+    action(stmts, texte).then(function(){ $("reglages").open = false; });
+  }
+  function normaliserSites(t){
+    return String(t || "").split(/[\r\n]+/).map(function(x){ return x.trim(); }).filter(function(x){ return x.length > 0; }).join("\n");
   }
 
   // ---------- écrans
@@ -664,6 +889,34 @@ details summary::after{content:"\25BE";margin-left:auto;color:var(--doux)}
     $("b-photo").onclick = voirEcran;
     $("photo-img").onclick = function(){ this.classList.toggle("agrandi"); };
     setInterval(function(){ if (!document.hidden) afficherAppli(); }, 5000); // fait avancer « il y a N s »
+
+    // Ce qu'il a fait : liste lue à l'ouverture de la section puis toutes les 60 s ; jamais d'image dans ce rafraîchissement
+    $("activite").addEventListener("toggle", function(){
+      if ($("activite").open) chargerSessions();
+      else { act.ouverte = null; act.panel = null; act.photos = []; act.reste = false; fermerVisu(); }
+    });
+    setInterval(function(){ if (!document.hidden && $("activite").open) chargerSessions(); }, 60000);
+    $("visu-prec").onclick = precedente;
+    $("visu-suiv").onclick = suivante;
+    $("visu-ferme").onclick = fermerVisu;
+    var dep = null;
+    $("visu").addEventListener("touchstart", function(e){
+      var t = e.touches && e.touches[0];
+      dep = (e.touches && e.touches.length === 1 && t) ? {x:t.clientX, y:t.clientY} : null;
+    }, {passive:true});
+    $("visu").addEventListener("touchend", function(e){
+      var t = e.changedTouches && e.changedTouches[0];
+      if (!dep || !t) return;
+      var dx = t.clientX - dep.x, dy = t.clientY - dep.y;
+      dep = null;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5){ if (dx < 0) suivante(); else precedente(); }
+    }, {passive:true});
+    document.addEventListener("keydown", function(e){
+      if (!visuOuverte()) return;
+      if (e.key === "ArrowLeft") precedente();
+      else if (e.key === "ArrowRight") suivante();
+      else if (e.key === "Escape") fermerVisu();
+    });
     var bs = document.querySelectorAll("[data-bonus]");
     for (var i = 0; i < bs.length; i++){
       (function(b){ b.onclick = function(){ bonus(parseInt(b.getAttribute("data-bonus"), 10)); }; })(bs[i]);
