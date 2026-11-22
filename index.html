@@ -171,6 +171,10 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
       <button type="button" class="bonus" data-bonus="10">+10 min</button>
       <button type="button" class="bonus" data-bonus="20">+20 min</button>
     </div>
+    <div class="rang" style="margin-top:8px">
+      <button type="button" class="bonus" data-bonus="-10">&minus;10 min</button>
+      <button type="button" class="bonus" data-bonus="-20">&minus;20 min</button>
+    </div>
     <div class="petit" style="margin-top:12px">
       <div id="bonus-jour">Bonus aujourd'hui : ...</div>
       <div id="bonus-semaine">Jours de bonus cette semaine : ...</div>
@@ -363,7 +367,7 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
     if (bloque) return {ok:false, raison:"bloque", reste:0};
     var dow = now.getDay(), we = (dow === 0 || dow === 6);
     var quota = we ? r.qw : r.qs;
-    var b = Math.max(0, Math.min(bonus, r.bm));
+    var b = Math.max(-quota, Math.min(bonus, r.bm));
     var rq = quota + b - utilise;
     if (rq <= 0) return {ok:false, raison:"quota", reste:0};
     return {ok:true, raison:"", reste:rq};
@@ -440,14 +444,17 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
     $("reste").textContent = d.ok ? dur(d.reste) : "0 min";
     var st = $("statut");
     st.className = "statut " + (d.ok ? "s-ok" : "s-ko");
-    $("bonus-jour").textContent = "Bonus aujourd'hui : " + Math.min(jr.bonus, donnees.regles.bm) + "/" + donnees.regles.bm + " min";
+    var quotaBase = (now.getDay() === 0 || now.getDay() === 6) ? donnees.regles.qw : donnees.regles.qs;
+    var bonusJour = Math.max(-quotaBase, Math.min(jr.bonus, donnees.regles.bm));
+    if (bonusJour < 0) $("bonus-jour").textContent = "Aujourd'hui : " + quotaBase + " min − " + (-bonusJour) + " = " + (quotaBase + bonusJour) + " min de loisirs";
+    else $("bonus-jour").textContent = "Bonus aujourd'hui : " + bonusJour + "/" + donnees.regles.bm + " min";
     $("bonus-semaine").textContent = "Jours de bonus cette semaine : " + joursBonusSemaine(donnees.jours, now) + "/" + donnees.regles.bj;
     if (d.ok) st.textContent = "Autorisé";
     else if (d.raison === "bloque") st.textContent = "Bloqué" + (donnees.bloquePar ? " par " + donnees.bloquePar : "");
     else st.textContent = "Loisirs finis, devoirs permis";
 
     // Loisirs : utilisé / quota du jour (bonus compris). Devoirs : minutes du jour, hors quota.
-    var quotaJour = (now.getDay() === 0 || now.getDay() === 6 ? donnees.regles.qw : donnees.regles.qs) + Math.max(0, Math.min(jr.bonus, donnees.regles.bm));
+    var quotaJour = quotaBase + bonusJour;
     $("t-loisirs").textContent = "Loisirs : " + utilise + " / " + quotaJour + " min";
     $("t-devoirs").textContent = "Devoirs : " + dur(donnees.devoirsMin);
 
@@ -491,7 +498,7 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
       var k = cleJour(dd);
       var j = donnees.jours[k] || {minutes:0, bonus:0};
       var we = (dd.getDay() === 0 || dd.getDay() === 6);
-      var q = (we ? donnees.regles.qw : donnees.regles.qs) + j.bonus;
+      var q = Math.max(0, (we ? donnees.regles.qw : donnees.regles.qs) + j.bonus);
       lignes.push({dd:dd, m:j.minutes, q:q});
       maxV = Math.max(maxV, j.minutes, q);
     }
@@ -804,20 +811,32 @@ textarea{width:100%;min-height:150px;border:1px solid var(--ligne);border-radius
     var cle = cleJour(now);
     // Relecture fraîche des plafonds et des jours de bonus avant d'accepter l'ajout
     sql([
-      ["SELECT bonus_max_jour_min, bonus_jours_max_semaine FROM regles WHERE id=1"],
+      ["SELECT bonus_max_jour_min, bonus_jours_max_semaine, quota_semaine_min, quota_weekend_min FROM regles WHERE id=1"],
       ["SELECT date, minutes, bonus_min FROM jours ORDER BY date DESC LIMIT 14"]
     ]).then(function(res){
       var r = res[0][0] || [];
       var bm = isNaN(parseInt(r[0],10)) ? 20 : parseInt(r[0],10);
       var bj = isNaN(parseInt(r[1],10)) ? 2 : parseInt(r[1],10);
+      var qs = isNaN(parseInt(r[2],10)) ? 60 : parseInt(r[2],10);
+      var qw = isNaN(parseInt(r[3],10)) ? 60 : parseInt(r[3],10);
+      var quota = (now.getDay() === 0 || now.getDay() === 6) ? qw : qs;
       var jours = {};
       res[1].forEach(function(l){ jours[l[0]] = {minutes:parseInt(l[1],10)||0, bonus:parseInt(l[2],10)||0}; });
       var deja = jours[cle] ? jours[cle].bonus : 0;
+      if (n < 0){
+        // Retrait : jamais sous -quota du jour (loisirs jamais négatifs), les plafonds d'ajout ne s'appliquent pas
+        if (deja <= -quota){
+          message("Rien à enlever : il ne reste déjà plus de loisirs aujourd'hui.");
+          return;
+        }
+        return action([["INSERT INTO jours(date, minutes, bonus_min) VALUES(?, 0, ?) ON CONFLICT(date) DO UPDATE SET bonus_min = MAX(?, bonus_min + ?)", [cle, Math.max(-quota, n), -quota, n]]], "−" + (-n) + " min");
+      }
+      // Ajout : les plafonds ne comptent que ce qui dépasse 0 (remonter vers 0 n'est jamais refusé)
       if (deja + n > bm){
         message("Refusé : le bonus d'un jour est limité à " + bm + " min (déjà " + deja + " aujourd'hui).");
         return;
       }
-      if (deja === 0 && joursBonusSemaine(jours, now) >= bj){
+      if (deja <= 0 && deja + n > 0 && joursBonusSemaine(jours, now) >= bj){
         message("Refusé : déjà " + bj + " jours de bonus cette semaine.");
         return;
       }
